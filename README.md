@@ -15,6 +15,7 @@ Mediawiki extension.
 
 
 ## SpecialPage
+
 SpecialPage:FeedbackUs diplays commented articles.
 SpecialPage:ArticleScores diplays a chart of reviewed articles
 
@@ -34,8 +35,10 @@ $wgGroupPermissions['sysop']['feedbackus'] = true;
 
 
 ## Configuration
+
 Open _config.php_ and set following constants:
-* FU-NAMESPACES - numbers of namespaces we want to give this kind of feedback, separated by comma,
+
+* FU-NAMESPACES - numbers of namespaces we want to give this kind of feedback, separated by comma
     * For example define('FU-NAMESPACES', '0,2,12'); allows Main, User, Help namespaces.
     * Numbers of built in namespaces can be found at http://www.mediawiki.org/wiki/Manual:Namespace.
     * Default is 0 = Main namespace.
@@ -44,6 +47,7 @@ Open _config.php_ and set following constants:
 
 
 ## Internationalization
+
 This extension is available in English and Czech language. For other languages, just edit files in /i18n/ folder.
 
 
