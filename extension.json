@@ -1,0 +1,85 @@
+{
+	"name": "feedbackus",
+	"version": "1.0",
+	"author": "Josef Martiňák",
+	"descriptionmsg": "feedbackus-desc",
+	"type": "specialpage",
+	"SpecialPages": {
+		"FeedbackUs": "FeedbackUs",
+		"ArticleScores": "ArticleScores"
+	},
+	"MessagesDirs": {
+		"FeedbackUs": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"FeedbackUsMagic": "FeedbackUs.i18n.magic.php"
+	},
+	"AutoloadClasses": {
+		"FeedbackUsHooks": "FeedbackUsHooks.php",
+		"FeedbackUs": "FeedbackUs_body.php",
+		"ArticleScores": "ArticleScores_body.php"
+	},
+	"ResourceModules": {
+		"ext.FeedbackUs": {
+			"position": "top",
+			"styles": [
+				"ext.FeedbackUs.css"
+			],
+			"scripts": [
+				"ext.FeedbackUs.js"
+			],
+			"dependencies": [
+			],
+			"messages": [
+				"feedbackus-frame-legend",
+				"feedbackus-cancel-button",
+				"feedbackus-send-button",
+				"feedbackus-message-label",
+				"feedbackus-thanks",
+				"feedbackus-email-label",
+				"feedbackus-issues",
+				"feedbackus-option0",
+				"feedbackus-option1",
+				"feedbackus-option2",
+				"feedbackus-00-startitle",
+				"feedbackus-0-startitle",
+				"feedbackus-1-startitle",
+				"feedbackus-2-startitle",
+				"feedbackus-3-startitle",
+				"feedbackus-4-startitle",
+				"feedbackus-5-startitle",
+				"articlescores-one-per-day",
+				"articlescores-score"
+			]
+		},
+		"ext.FeedbackUs.magic": {
+			"position": "bottom",
+			"styles": [
+				"ext.FeedbackUs.magic.css"
+			],
+			"scripts": [
+				"ext.FeedbackUs.magic.js"
+			],
+			"dependencies": [
+			],
+			"messages": [
+				"feedbackus-thanks",
+				"feedbackus-link",
+				"feedbackus-title",
+				"feedbackus-send-button"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "FeedbackUs"
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "FeedbackUsHooks::FeedbackUsUpdateSchema",
+		"BeforePageDisplay": "FeedbackUsHooks::activateFB",
+		"ParserFirstCallInit": "FeedbackUsHooks::efFeedbackUs_Setup"
+	},
+	"manifest_version": 1
+}
