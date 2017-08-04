@@ -5,9 +5,8 @@
  * @ingroup Extensions
  * @author Josef Martiňák
  * @license MIT
- * @version 1.0
  * @file
-*/
+ */
 
 # Allowed Namespaces - http://www.mediawiki.org/wiki/Manual:Namespace
 define( 'FU_NAMESPACES', '0,100,102' );	// 0-main, 2-User, 12-Help ...

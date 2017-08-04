@@ -5,7 +5,6 @@
  * @ingroup Extensions
  * @author Josef Martiňák
  * @license MIT
- * @version 1.0
  * @file
  */
 

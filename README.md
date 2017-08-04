@@ -4,6 +4,7 @@ Mediawiki extension.
 
 ## Description
 
+* Version 1.0
 * Extension gives feedback regarding the articles
     * User can send messages to wiki sysops.
 	* User can see and change article's rating.
@@ -20,7 +21,7 @@ SpecialPage:FeedbackUs diplays commented articles.
 SpecialPage:ArticleScores diplays a chart of reviewed articles
 
 
-## Instalation
+## Installation
 
 * Make sure you have MediaWiki 1.28+ installed.
 * Download and place the extension's folder to your /extensions/ folder.
