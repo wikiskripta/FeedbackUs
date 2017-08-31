@@ -335,7 +335,7 @@ class FeedbackUs extends SpecialPage {
 			$res = $dbr->select(
 				'feedbackus',
 				array( 'page_id', 'comment', 'timestamp', 'email' ),
-				'',
+				'comment!=""',
 				'__METHOD__',
 				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => FU_PAGE_COUNT, "OFFSET" => (($page-1)*FU_PAGE_COUNT) )
 			);
