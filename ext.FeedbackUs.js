@@ -1,12 +1,7 @@
 /**
  * Add onclick for FeedbackUsLink
  * Send feedback
- * @ingroup Extensions
- * @author Josef Martiňák
- * @license MIT
- * @file
  */
-
 
 ( function ( mw, $ ) {
 
@@ -16,24 +11,10 @@
 	var tmp = $( '#FeedbackUsLink' ).attr( 'alt' ).split("@");
 	var wikipath = window.location.origin;
 
-	//$( '#FeedbackUsLink' ).remove();
-	
-	if( mw.config.get("skin") == "wisky" ) {
-		// Add link to Wisky skin
-		$("<li id='ca-feedback'><a>" + content + "</a></li>").insertAfter("#ca-talk");
-	}
-	else {
-		// Add link to other skins
-		var fbusIcon = wikipath + "/extensions/FeedbackUs/feedbackIcon30.png";
-		$("#firstHeading").append("<div id='ca-feedback' style='position: absolute;top:25px;right:300px;'><a><img src='" + fbusIcon + "' title='"+content+"' alt=''/></a></div>");
-	}
-	/*
-	$("<a><img src='" + wikipath + "/extensions/FeedbackUs/star_orange.png' title='"+content+"' alt='"+content+"'/></a>").insertBefore("#map_edit_img");
-	$("#firstHeading").append("<a><img src='" + wikipath + "/extensions/FeedbackUs/star_orange.png' title='"+content+"' alt='"+content+"'/></a>");
-	$("#contentSub").append("<a><img src='" + wikipath + "/extensions/FeedbackUs/star_orange.png' title='"+content+"' alt='"+content+"'/></a>");
-	*/
+	// Add link to Wisky skin
+	//$("<li id='ca-feedback'><a>" + content + "</a></li>").insertAfter("#ca-talk");
+	$("#firstHeading").append('<div id="ca-feedback" style=""><a><img src="/extensions/FeedbackUs/feedback.png" id="feedbackicon" alt="Feedback"></a>');
 
-	
 	// Bind click handler
 	$("#ca-feedback > a").click( function ( e ) {
 		e.preventDefault();
@@ -47,21 +28,19 @@
 		if( $( '#FeedbackUsForm').length <= 0 ) {
 			var position = $( this ).position();
 			// create box
-			if( mw.config.get("skin") == "wisky" ) {
-				$( '#bodyContent' ).after( "<div id='FeedbackUsForm'></div>" );
-				$( '#FeedbackUsForm' ).css( 'left', 2 );
-				$( '#FeedbackUsForm' ).css( 'top', 80 );
-				$( '#FeedbackUsForm' ).css( 'height', 400 );
-				$( '#FeedbackUsForm' ).css( 'font-size', '0.8rem' );
-				$( '#FeedbackUsCancelButton' ).css( 'font-size', '0.8rem' );
-			}
-			else {
-				$( this ).after( "<div id='FeedbackUsForm'></div>" );
-				/*
-				$( '#FeedbackUsForm' ).css( 'left', position.left - 305  );
-				$( '#FeedbackUsForm' ).css( 'top', position.bottom - 3 );
-				*/
-			}
+			/*
+			$( '#bodyContent' ).after( "<div id='FeedbackUsForm'></div>" );
+			$( '#FeedbackUsForm' ).css( 'left', 2 );
+			$( '#FeedbackUsForm' ).css( 'top', 80 );
+			$( '#FeedbackUsForm' ).css( 'height', 400 );
+			$( '#FeedbackUsForm' ).css( 'font-size', '0.8rem' );
+			$( '#FeedbackUsCancelButton' ).css( 'font-size', '0.8rem' );
+			*/
+			$( this ).after( "<div id='FeedbackUsForm'></div>" );
+			$( '#FeedbackUsForm' ).css( 'left', position.left - 305  );
+			$( '#FeedbackUsForm' ).css( 'top', position.bottom - 3 );
+
+
 
 			// insert cancel button (and onclick event)
 			$( '#FeedbackUsForm' ).append( "<div id='FeedbackUsCancelButton'>" + mw.message( 'feedbackus-cancel-button' ).plain() + "</div>" );
@@ -87,7 +66,7 @@
 				break;
 				
 				case '3':
-				color = "#a0994a";
+				color = "#4474c9";
 				break;
 		
 				case '4':

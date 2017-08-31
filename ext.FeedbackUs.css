@@ -1,18 +1,24 @@
 @charset "utf-8";
 /* CSS Document */
 
+#ca-feedback {
+	float:right;
+}
+
+
 #ca-feedback > a {
 	cursor:pointer;	
 }
 
 #FeedbackUsForm {
+	font-family: Arial, Helvetica, sans-serif;
 	position: absolute;
 	width: 305px;
-	height: 400px;
+	height: 405px;
 	opacity: 0;
 	z-index:1000;
 	padding: 5px 10px 10px 10px;
-	font-size: 1rem;
+	font-size: 0.8rem;
 	font-weight:normal;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -23,32 +29,20 @@
 	background-color: #464139; /*#ffbb05;*/
 }
 
-#FeedbackUsForm input {
-	font-size: 1rem;
-}
-
-#FeedbackUsForm textarea {
-	font-size: 1rem;	
-}
-
 
 #FeedbackUsForm h3 {
 	color:white;	
 }
 
-#FeedbackUsForm img {
-	/*
-	margin:0px;
-	padding:0px;*/
-}
 
 #FeedbackUsComment {
+	font-family: Arial, Helvetica, sans-serif;
 	width: 305px;
 	height: 100px;
 	border: 1px solid #BCBCBC;
 	padding: 5px;
 	color: #252525;
-	font-size: 1rem;
+	font-size: 0.9rem;
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-khtml-border-radius: 2px;
@@ -64,7 +58,7 @@
 	border-top-width:0px;
 	padding: 2px 5px;
 	color: #252525;
-	font-size: 1rem;
+	font-size: 0.9rem;
 }
 #FeedbackUsEmail:focus {outline:0;}
 
@@ -78,6 +72,7 @@ ul#FeedbackUsOptions {
 	margin: 0;
 	padding: 0;
 	clear:both;
+	/*font-size: 0.8rem;*/
 }
 
 #FeedbackUsOptions li label{
@@ -123,37 +118,37 @@ ul#FeedbackUsOptions {
 
 ::-webkit-input-placeholder { /* WebKit browsers */
     color: #999;
-	font-size: 1rem;
-	font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.9rem important!;
+    font-family: Arial, Helvetica, sans-serif;
 }
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
    color: #999;
    opacity: 1;
-   font-size: 1rem;
+   font-size: 0.9rem important!;
    font-family: Arial, Helvetica, sans-serif;
 }
 ::-moz-placeholder { /* Mozilla Firefox 19+ */
    color: #999;
    opacity: 1;
-   font-size: 1rem;
+   font-size: 0.9rem important!;
    font-family: Arial, Helvetica, sans-serif;
 }
 :-ms-input-placeholder { /* Internet Explorer 10+ */
    color: #999;
-   font-size: 1rem;
+   font-size: 0.9rem important!;
    font-family: Arial, Helvetica, sans-serif;
 }
 
 .FeedbackUsSendButton {
 	float:right;
-	/*
-	margin: 0px 0px 20px 0px;
-	color: #252525;
-	font-size: 1rem;
-	*/
 	outline:none;
 	margin-top:5px;
 	margin-left:205px;
-	color:#464139;
 	padding:5px;
+
+	background-color: #5b6c74;
+	color: #fff;
+	border: 1px solid #5b6c74;
+	text-shadow: 0 1px rgba(91, 108, 116, 0.1);
+	font-size: 1rem;
 }

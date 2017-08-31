@@ -1,12 +1,7 @@
 /**
  * Add onclick for Magicbox
  * Send feedback
- * @ingroup Extensions
- * @author Josef Martiňák
- * @license MIT
- * @file
  */
-
 
 ( function ( mw, $ ) {
 	// send message from magic box
