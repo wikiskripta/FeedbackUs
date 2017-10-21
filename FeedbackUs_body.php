@@ -409,7 +409,7 @@ class FeedbackUs extends SpecialPage {
 			// show results
 			$res = $dbr->select(
 				'feedbackus',
-				array( 'comment', 'timestamp', 'email' ),
+				array( 'comment', 'timestamp', 'email', 'id' ),
 				array( 'page_id' => $page_id ),
 				'__METHOD__',
 				array( 'ORDER BY' => 'timestamp DESC' )
