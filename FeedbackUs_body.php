@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SpecialPage for FeedbackUs extenion
+ * SpecialPage for FeedbackUs extension
  * Called with REQUEST parameters page_id and comment,
  * adds feedback to database
  * Otherwise displays the list of commented articles
