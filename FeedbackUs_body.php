@@ -60,7 +60,7 @@ class FeedbackUs extends SpecialPage {
 		}
 
 
-		if ( $write==1 && $page_id>0 && $namespace_allowed && $rev_id && !$repaired ) {
+		if ( $write==1 && $page_id>0 && $namespace_allowed && $rev_id && empty($repaired) ) {
 			# ###################################
 			# SEND FEEDBACK
 			####################################
@@ -214,7 +214,7 @@ class FeedbackUs extends SpecialPage {
 			echo $ret;
 			exit;
 		}
-		elseif( $write == 1 && !empty( $comment ) && empty( $page_id ) && !$repaired ) {
+		elseif( $write == 1 && !empty( $comment ) && empty( $page_id ) && empty($repaired) ) {
 			// message from magic box
 			
 			$email = $request->getVal( 'email' );
@@ -253,7 +253,7 @@ class FeedbackUs extends SpecialPage {
 			echo $ret;
 			exit;
 		}
-		elseif( $repaired && $feedback_id ) {
+		elseif( $repaired == 1 && !empty($feedback_id) ) {
 			####################################
 			# REMOVE FEEDBACK FROM DB
 			####################################
@@ -387,8 +387,8 @@ class FeedbackUs extends SpecialPage {
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
 				$hascontent = true;
-				$output .= "<a href='".WIKIURL."/index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."'>";
-				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a>";
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."'>";
+				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 			}
 			$output .= "</table>";
@@ -443,6 +443,8 @@ class FeedbackUs extends SpecialPage {
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."'>";
+				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 				$hascontent = true;			
 			}
