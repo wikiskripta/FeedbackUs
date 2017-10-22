@@ -266,6 +266,10 @@ class FeedbackUs extends SpecialPage {
 					'feedbackus',
 					array( 'id' => $feedback_id )
 				);
+				// pager
+				$page = $request->getInt('fuPageNumber',1);
+				echo "<script>window.location.href='".WIKIURL . "/index.php?title=Special:FeedbackUs&fuPageNuber=$page'</script>";
+				exit;
 			}
 		}
 
@@ -285,7 +289,6 @@ class FeedbackUs extends SpecialPage {
 			####################################
 			# SHOW AT SPECIAL PAGE
 			####################################
-			
 			// pager
 			$page = $request->getInt('fuPageNumber',1);
 			$output = "<br/><br/><form id='fuMenu' name='fuMenu' method='post' action=''>\n";
