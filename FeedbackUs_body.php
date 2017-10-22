@@ -39,8 +39,8 @@ class FeedbackUs extends SpecialPage {
 		// FU
 		$write = $request->getInt( 'write' );
 		$comment = $request->getVal( 'comment' );
-		$repaired = $request->getInt( 'repaired' );  // feedback had been processed
-		$feedback_id = $request->getInt( 'feedback_id' );
+		$repaired = $request->getText( 'repaired' );  // feedback had been processed
+		$feedback_id = $request->getText( 'feedback_id' );
 		// AS
 		$rev_id = $request->getInt( 'rev_id' );
 		
