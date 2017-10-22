@@ -258,7 +258,7 @@ class FeedbackUs extends SpecialPage {
 			# REMOVE FEEDBACK FROM DB
 			####################################
 			
-			if( !isset( $wgReadOnly ) ) {
+			if( empty( $wgReadOnly ) ) {
 				$this->checkPermissions();
 				$dbw = wfGetDB( DB_MASTER );
 				// remove from DB
