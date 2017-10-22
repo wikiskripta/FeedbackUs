@@ -310,7 +310,8 @@ class FeedbackUs extends SpecialPage {
 			// show the number of comments
 			$resp = $dbr->select(
 				"feedbackus",
-				array("id")
+				array("id"),
+				'comment!=""'
 			);
 			$nm = ceil($resp->numRows()/FU_PAGE_COUNT);
 			for($i=1;$i<=$nm;$i++){
@@ -387,7 +388,7 @@ class FeedbackUs extends SpecialPage {
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
 				$hascontent = true;
-				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."'>";
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 			}
@@ -443,7 +444,7 @@ class FeedbackUs extends SpecialPage {
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
-				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."'>";
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 				$hascontent = true;			
