@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SpecialPage for FeedbackUs extenion
+ * SpecialPage for FeedbackUs extension
  * Called with REQUEST parameters page_id and comment,
  * adds feedback to database
  * Otherwise displays the list of commented articles
@@ -39,6 +39,8 @@ class FeedbackUs extends SpecialPage {
 		// FU
 		$write = $request->getInt( 'write' );
 		$comment = $request->getVal( 'comment' );
+		$repaired = $request->getText( 'repaired' );  // feedback had been processed
+		$feedback_id = $request->getText( 'feedback_id' );
 		// AS
 		$rev_id = $request->getInt( 'rev_id' );
 		
@@ -58,7 +60,7 @@ class FeedbackUs extends SpecialPage {
 		}
 
 
-		if ( $write==1 && $page_id>0 && $namespace_allowed && $rev_id ) {
+		if ( $write==1 && $page_id>0 && $namespace_allowed && $rev_id && empty($repaired) ) {
 			# ###################################
 			# SEND FEEDBACK
 			####################################
@@ -212,7 +214,7 @@ class FeedbackUs extends SpecialPage {
 			echo $ret;
 			exit;
 		}
-		elseif( $write == 1 && !empty( $comment ) && empty( $page_id ) ) {
+		elseif( $write == 1 && !empty( $comment ) && empty( $page_id ) && empty($repaired) ) {
 			// message from magic box
 			
 			$email = $request->getVal( 'email' );
@@ -251,24 +253,42 @@ class FeedbackUs extends SpecialPage {
 			echo $ret;
 			exit;
 		}
-		
+		elseif( $repaired == 1 && !empty($feedback_id) ) {
+			####################################
+			# REMOVE FEEDBACK FROM DB
+			####################################
+			
+			if( empty( $wgReadOnly ) ) {
+				$this->checkPermissions();
+				$dbw = wfGetDB( DB_MASTER );
+				// remove from DB
+				$res = $dbw->delete(
+					'feedbackus',
+					array( 'id' => $feedback_id )
+				);
+				// pager
+				$page = $request->getInt('fuPageNumber',1);
+				echo "<script>window.location.href='".WIKIURL . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
+				exit;
+			}
+		}
+
 		$this->checkPermissions();
 		$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
 		if( FU_SEND_TO_OTRS ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
 		
 		// prepare output table 
-		$tableheader = "<table class='wikitable sortable'>";
+		$tableheader = "<table class='wikitable'>";
 		$tableheader .= "<tr><th>" . $this->msg( 'feedbackus-specialpage-articlename' )->text() . "</th>";
 		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-comments' )->text() . "</th>";
 		$tableheader .= "<th>Email</th>";
-		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</th></tr>";
+		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</th><th></th></tr>";
 		$hascontent = false;
 		if( !$request->getInt( 'detail' ) ) {
 			
 			####################################
 			# SHOW AT SPECIAL PAGE
 			####################################
-			
 			// pager
 			$page = $request->getInt('fuPageNumber',1);
 			$output = "<br/><br/><form id='fuMenu' name='fuMenu' method='post' action=''>\n";
@@ -293,7 +313,8 @@ class FeedbackUs extends SpecialPage {
 			// show the number of comments
 			$resp = $dbr->select(
 				"feedbackus",
-				array("id")
+				array("id"),
+				'comment!=""'
 			);
 			$nm = ceil($resp->numRows()/FU_PAGE_COUNT);
 			for($i=1;$i<=$nm;$i++){
@@ -334,7 +355,7 @@ class FeedbackUs extends SpecialPage {
 			// show results
 			$res = $dbr->select(
 				'feedbackus',
-				array( 'page_id', 'comment', 'timestamp', 'email' ),
+				array( 'page_id', 'comment', 'timestamp', 'email', 'id' ),
 				'comment!=""',
 				'__METHOD__',
 				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => FU_PAGE_COUNT, "OFFSET" => (($page-1)*FU_PAGE_COUNT) )
@@ -370,6 +391,8 @@ class FeedbackUs extends SpecialPage {
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
 				$hascontent = true;
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 			}
 			$output .= "</table>";
@@ -390,7 +413,7 @@ class FeedbackUs extends SpecialPage {
 			// show results
 			$res = $dbr->select(
 				'feedbackus',
-				array( 'comment', 'timestamp', 'email' ),
+				array( 'comment', 'timestamp', 'email', 'id' ),
 				array( 'page_id' => $page_id ),
 				'__METHOD__',
 				array( 'ORDER BY' => 'timestamp DESC' )
@@ -424,6 +447,8 @@ class FeedbackUs extends SpecialPage {
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 				$hascontent = true;			
 			}
