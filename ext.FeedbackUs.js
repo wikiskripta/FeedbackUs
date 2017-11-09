@@ -13,7 +13,7 @@
 
 	// Add link to Wisky skin
 	//$("<li id='ca-feedback'><a>" + content + "</a></li>").insertAfter("#ca-talk");
-	$("#firstHeading").append('<div id="ca-feedback" style=""><a><img src="/extensions/FeedbackUs/feedback.png" id="feedbackicon" alt="Feedback"></a>');
+	$("#firstHeading").append('<div id="ca-feedback" class="noprint" style=""><a><img src="/extensions/FeedbackUs/feedback.png" id="feedbackicon" alt="Feedback"></a>');
 
 	// Bind click handler
 	$("#ca-feedback > a").click( function ( e ) {
@@ -28,19 +28,9 @@
 		if( $( '#FeedbackUsForm').length <= 0 ) {
 			var position = $( this ).position();
 			// create box
-			/*
-			$( '#bodyContent' ).after( "<div id='FeedbackUsForm'></div>" );
-			$( '#FeedbackUsForm' ).css( 'left', 2 );
-			$( '#FeedbackUsForm' ).css( 'top', 80 );
-			$( '#FeedbackUsForm' ).css( 'height', 400 );
-			$( '#FeedbackUsForm' ).css( 'font-size', '0.8rem' );
-			$( '#FeedbackUsCancelButton' ).css( 'font-size', '0.8rem' );
-			*/
 			$( this ).after( "<div id='FeedbackUsForm'></div>" );
 			$( '#FeedbackUsForm' ).css( 'left', position.left - 305  );
 			$( '#FeedbackUsForm' ).css( 'top', position.bottom - 3 );
-
-
 
 			// insert cancel button (and onclick event)
 			$( '#FeedbackUsForm' ).append( "<div id='FeedbackUsCancelButton'>" + mw.message( 'feedbackus-cancel-button' ).plain() + "</div>" );
@@ -50,7 +40,7 @@
 			var color;
 			if( rating == 0 || rating == '' ) {
 				startitle = mw.message( 'feedbackus-00-startitle' ).plain();
-				color = "#ffffff";
+				color = "#000000";
 			}
 			else {
 				startitle = mw.message( 'feedbackus-' + rating + '-startitle' ).plain();
@@ -87,9 +77,6 @@
 			}
 			*/
 			
-			//$( '#FeedbackUsForm' ).append( "<img src='https://img.shields.io/badge/" + mw.message( 'articlescores-score' ).plain() + "-" + startitle + "-" + color + ".svg?style=flat-square' alt='" + mw.message( 'articlescores-score' ).plain() + "'/>" );
-			//var selectbox = "<br><br><select id='as_sel'>";
-			
 			var selectbox = mw.message( 'articlescores-score' ).plain() + ":<div style='padding:3px;margin-left:8px;border-radius:2px;display:inline;background-color:" + color + ";'>" + startitle + "</div><select id='as_sel'>";
 			for( var i=0; i<6; i++ ) {
 				selectbox += "<option value='" + i + "' ";
@@ -117,14 +104,6 @@
 			$( '#FeedbackUsForm' ).append( optionTitle + "<ul id='FeedbackUsOptions' style='margin-top:5px;'>" + fuOptions + "</ul>" );
 			
 			// insert send button (and onclick event)
-			/*
-			var saveButton = new OO.ui.ButtonWidget( {
-			  label: mw.message( 'feedbackus-send-button' ).plain(),
-			  flags:'constructive',
-			  classes: ['FeedbackUsSendButton']
-			} );    
-			$( '#FeedbackUsForm' ).append( saveButton.$element );
-			*/
 			$( '#FeedbackUsForm' ).append( "<button class='FeedbackUsSendButton'>" + mw.message( 'feedbackus-send-button' ).plain() + "</button>" );
 						
 			// cancel
@@ -140,7 +119,6 @@
 			});
 			// send
 
-				//$( '#FeedbackUsSendButton' ).button().click( function( event ) {
 				$( '.FeedbackUsSendButton' ).click( function( event ) {
 				// send feedback
 				var fuo = '';
