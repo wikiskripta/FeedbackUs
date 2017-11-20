@@ -36,6 +36,8 @@ class FeedbackUs extends SpecialPage {
 		
 		$page_id = $request->getInt( 'page_id' );
 		$dbr = wfGetDB( DB_SLAVE );
+		$dbw = wfGetDB( DB_MASTER );
+		
 		// FU
 		$write = $request->getInt( 'write' );
 		$comment = $request->getVal( 'comment' );
@@ -89,9 +91,7 @@ class FeedbackUs extends SpecialPage {
 			}
 			$options = '';
 			$options = $request->getVal( 'options' );
-
-			$dbw = wfGetDB( DB_MASTER );
-			
+	
 			$ret = 'ok';
 			if( $options || $comment ) {
 				// insert new feedback
@@ -221,7 +221,7 @@ class FeedbackUs extends SpecialPage {
 			if( empty ( $email ) || !preg_match( "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email ) ) {
 				$email = '';
 			}
-			$dbw = wfGetDB( DB_MASTER );
+
 			// insert new feedback
 			$res = $dbw->insert(
 				'feedbackus',
@@ -260,7 +260,6 @@ class FeedbackUs extends SpecialPage {
 			
 			if( empty( $wgReadOnly ) ) {
 				$this->checkPermissions();
-				$dbw = wfGetDB( DB_MASTER );
 				$dbw->begin();
 				// remove from DB
 				$res = $dbw->delete(
