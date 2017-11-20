@@ -261,11 +261,13 @@ class FeedbackUs extends SpecialPage {
 			if( empty( $wgReadOnly ) ) {
 				$this->checkPermissions();
 				$dbw = wfGetDB( DB_MASTER );
+				$dbw->begin();
 				// remove from DB
 				$res = $dbw->delete(
 					'feedbackus',
 					array( 'id' => $feedback_id )
 				);
+				$dbw->commit();
 				// pager
 				$page = $request->getInt('fuPageNumber',1);
 				if(!$page) $page=1;
@@ -410,6 +412,9 @@ class FeedbackUs extends SpecialPage {
 			####################################
 			// prepare output table 
 			$output = "<br/><br/><input type='button' onclick=\"history.back();return false;\" value='<<'/>".$tableheader;
+						
+			// pager
+			$page = $request->getInt('fuPageNumber',1);
 						
 			// show results
 			$res = $dbr->select(
