@@ -13,3 +13,4 @@ CREATE TABLE IF NOT EXISTS `articlescores` (
 ) COMMENT='revisions scoring';
 
 CREATE INDEX rev_page ON articlescores(rev_page);
+CREATE INDEX rev_id ON articlescores(rev_id);
