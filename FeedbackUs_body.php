@@ -95,6 +95,7 @@ class FeedbackUs extends SpecialPage {
 			$ret = 'ok';
 			if( $options || $comment ) {
 				// insert new feedback
+				$dbw->begin();
 				$res = $dbw->insert(
 					'feedbackus',
 					array(
@@ -103,6 +104,7 @@ class FeedbackUs extends SpecialPage {
 						'email' => $email
 					)
 				);
+				$dbw->commit();
 				if ( !$res ) {
 					$ret = 'err';
 				}
@@ -150,11 +152,13 @@ class FeedbackUs extends SpecialPage {
 					// dayips reset if recent day can't be found in db
 					$newdayips = "$dayips,$ip";
 					if ( $dtnow->format('Ymd') != $dbdate->format( 'Ymd' ) ) {
+						$dbw->begin();
 						$res2 = $dbw->update(
 							'articlescores',
 							array( 'day_ips' => '', 'last_inserted' => $now ),
 							array( 'rev_page' => $page_id, 'rev_id' => $rev_id )
 						);
+						$dbw->commit();
 						$dayips = '';
 						$newdayips = $ip;
 					}
@@ -164,6 +168,7 @@ class FeedbackUs extends SpecialPage {
 							$dtnow->format( 'Ymd' ) != $dbdate->format( 'Ymd' ) )
 					{
 						// update rating (condition one ip per revision per day)
+						$dbw->begin();
 						$res2 = $dbw->update(
 							'articlescores',
 							array(
@@ -173,6 +178,7 @@ class FeedbackUs extends SpecialPage {
 								'last_inserted' => $now ),
 							array('id' => $res->id )
 						);
+						$dbw->commit();
 						if ( !$res2 ) {
 							$ok = false;
 							$ret = 'articlescores-error-update';
@@ -185,6 +191,7 @@ class FeedbackUs extends SpecialPage {
 				}
 				else {
 					// insert new revision's rating
+					$dbw->begin();
 					$res2 = $dbw->insert(
 						'articlescores',
 						array(
@@ -195,6 +202,7 @@ class FeedbackUs extends SpecialPage {
 							'day_ips' => $ip,
 							'last_inserted' => $now )
 					);
+					$dbw->commit();
 					if ( !$res2 ) {
 						$ok = false;
 						$ret = 'articlescores-error-insert';
@@ -223,6 +231,7 @@ class FeedbackUs extends SpecialPage {
 			}
 
 			// insert new feedback
+			$dbw->begin();
 			$res = $dbw->insert(
 				'feedbackus',
 				array(
@@ -231,6 +240,7 @@ class FeedbackUs extends SpecialPage {
 					'email' => $email
 				)
 			);
+			$dbw->commit();
 			$ret = 'ok';
 			if ( !$res ) {
 				$ret = 'err';
