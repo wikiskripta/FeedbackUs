@@ -277,6 +277,9 @@ class FeedbackUs extends SpecialPage {
 					array( 'id' => $feedback_id )
 				);
 				
+				$lb = wfGetLBFactory();
+				$lb->shutdown();
+
 				// pager
 				$page = $request->getInt('fuPageNumber',1);
 				if(!$page) $page=1;
