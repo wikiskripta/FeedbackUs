@@ -1,9 +1,15 @@
 {
 	"name": "feedbackus",
-	"version": "1.0",
+	"version": "1.1",
 	"author": "Josef Martiňák",
+	"url": "https://bitbucket.org/wikiskripta/feedbackus",
 	"descriptionmsg": "feedbackus-desc",
 	"type": "specialpage",
+	"license-name": "MIT",
+	"status": "stable",
+	"requires": {
+		"MediaWiki": ">= 1.29.0"
+	},
 	"SpecialPages": {
 		"FeedbackUs": "FeedbackUs",
 		"ArticleScores": "ArticleScores"
@@ -81,5 +87,27 @@
 		"BeforePageDisplay": "FeedbackUsHooks::activateFB",
 		"ParserFirstCallInit": "FeedbackUsHooks::efFeedbackUs_Setup"
 	},
-	"manifest_version": 1
+	"config": {
+		"namespaces": {
+			"value": [0,100,102],
+			"description": "Numbers of namespaces we want to give this kind of feedback, separated by comma."
+		},
+		"pageCount": {
+			"value": "15",
+			"description": "Pager. Default 50 comments on page."
+		},
+		"sendToOtrs": {
+			"value": false,
+			"description": "If true, comments from magic box with given sender email are sent to email address in otrsAddress."
+		},
+		"articleScoresItemsCount": {
+			"value": "100",
+			"description": "Pager. Number of scored articles showed at Special:FeedbackUs."
+		},
+		"namespaces": {
+			"value": "",
+			"description": ""
+		}
+	}
+	"manifest_version": 2
 }
