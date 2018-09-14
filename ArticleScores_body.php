@@ -25,8 +25,8 @@ class ArticleScores extends SpecialPage {
 		$dbr = wfGetDB( DB_SLAVE );
 
 		# URL of this wiki
-		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
-				
+		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );
+						
 		####################################
 		# show best ratings
 		####################################
@@ -115,7 +115,8 @@ class ArticleScores extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $row->page_id )
 			);
-			if( $res2 && strpos( ',' . $config->get("namespaces") . ',', ',' . $res2->page_namespace . ',' ) !== false ) {
+			$namespace_allowed = in_array($res2->page_namespace, $config->get("namespaces")) ? true:false;
+			if( $res2 && $namespace_allowed ) {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
 				$output .= "|-\n";

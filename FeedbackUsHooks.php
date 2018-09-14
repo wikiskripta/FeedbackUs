@@ -20,10 +20,10 @@ class FeedbackUsHooks {
 		// FeedbackUs only for articles from defined namespace (Main page exluded)
 		if( !$out->isArticle() ) return true;
 		$title = $out->getTitle();
-		$config = $this->getConfig();
+		$config = $out->getConfig();
 		
-		$allowed = strpos( ',' . $config->get("namespaces") . ',', ',' . $title->getNamespace() . ',' );
-		
+		$allowed = in_array($title->getNamespace(), $config->get("namespaces")) ? true:false;
+
 		if ( !$title->isMainPage() && $allowed !== false ) {
 			// show icon
 			$page_id = $out->getWikiPage()->getId();

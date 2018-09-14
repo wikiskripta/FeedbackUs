@@ -28,7 +28,7 @@ class FeedbackUs extends SpecialPage {
 		$config = $this->getConfig();
 
 		# URL of this wiki
-		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
+		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );
 				
 		$page_id = $request->getInt( 'page_id' );
 		$dbr = wfGetDB( DB_SLAVE );
@@ -44,17 +44,13 @@ class FeedbackUs extends SpecialPage {
 		
 
 		// is the article's namespace allowed?
-		$namespace_allowed = true;
 		if ( $page_id  ) {
 			$res = $dbr->selectRow(
 				'page',
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $page_id )
 			);
-			if ( $res !==false && strpos( ',' . $config->get("namespaces") . ',', ',' .
-					$res->page_namespace . ',') === false ) {
-				$namespace_allowed = false;
-			}
+			$namespace_allowed = in_array($res->page_namespace, $config->get("namespaces")) ? true:false;
 		}
 
 
@@ -327,7 +323,7 @@ class FeedbackUs extends SpecialPage {
 				array("id"),
 				'comment!=""'
 			);
-			$nm = ceil($resp->numRows()/FU_PAGE_COUNT);
+			$nm = ceil($resp->numRows()/$config->get("pageCount"));
 			for($i=1;$i<=$nm;$i++){
 				if($i==$page) {
 					$output .= "<input type='button' value='$i&nbsp;' style='color:red'/>";
@@ -402,7 +398,7 @@ class FeedbackUs extends SpecialPage {
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
 				$hascontent = true;
-				$output .= "<td><a href='".$wikiurl."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= "<td><a href='".$wikiurl."/index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 			}
@@ -461,7 +457,7 @@ class FeedbackUs extends SpecialPage {
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
-				$output .= "<td><a href='".$wikiurl."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= "<td><a href='".$wikiurl."/index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 				$hascontent = true;			
