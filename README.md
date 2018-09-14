@@ -26,7 +26,6 @@ SpecialPage:ArticleScores diplays a chart of reviewed articles
 ```
 wfLoadExtension( 'FeedbackUs' );
 $wgGroupPermissions['*']['feedbackus'] = false;
-$wgGroupPermissions['user']['feedbackus'] = false;
 $wgGroupPermissions['sysop']['feedbackus'] = true;
 ```
 * Run `maintenance/update.php`, _feedbackus_, _articlescores_ and _articlescores_sum_ tables will be added (if not exist).
