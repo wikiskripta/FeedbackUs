@@ -12,8 +12,7 @@
 	var wikipath = window.location.origin;
 
 	// Add link to Wisky skin
-	//$("<li id='ca-feedback'><a>" + content + "</a></li>").insertAfter("#ca-talk");
-	$("#firstHeading").append('<div id="ca-feedback" class="noprint" style=""><a><img src="/extensions/FeedbackUs/feedback.png" id="feedbackicon" alt="Feedback"></a>');
+	$("#firstHeading").append('<div id="ca-feedback" class="noprint" style=""><a><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></a>');
 
 	// Bind click handler
 	$("#ca-feedback > a").click( function ( e ) {
@@ -71,7 +70,7 @@
 			/*
 			if( rating > 0 ) {
 				for( var i=0; i<rating; i++ ) {
-					$( '#FeedbackUsForm' ).append( "<img id='as_star' src='" + wikipath + "/extensions/FeedbackUs/star_white.png' alt='" + startitle + "'/>" );
+					$( '#FeedbackUsForm' ).append( "<img id='as_star' src='" + wikipath + "/extensions/FeedbackUs/resources/img/star_white.png' alt='" + startitle + "'/>" );
 				}
 				$( '#FeedbackUsForm' ).append(" ");
 			}

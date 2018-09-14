@@ -1,5 +1,5 @@
 {
-	"name": "feedbackus",
+	"name": "FeedbackUs",
 	"version": "1.1",
 	"author": "Josef Martiňák",
 	"url": "https://bitbucket.org/wikiskripta/feedbackus",
@@ -79,8 +79,8 @@
 		}
 	},
 	"ResourceFileModulePaths": {
-		"localBasePath": "",
-		"remoteExtPath": "FeedbackUs"
+		"localBasePath": "resources",
+		"remoteExtPath": "FeedbackUs/resources"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "FeedbackUsHooks::FeedbackUsUpdateSchema",
@@ -93,21 +93,21 @@
 			"description": "Numbers of namespaces we want to give this kind of feedback, separated by comma."
 		},
 		"pageCount": {
-			"value": "15",
+			"value": 15,
 			"description": "Pager. Default 50 comments on page."
 		},
 		"sendToOtrs": {
 			"value": false,
 			"description": "If true, comments from magic box with given sender email are sent to email address in otrsAddress."
 		},
-		"articleScoresItemsCount": {
-			"value": "100",
-			"description": "Pager. Number of scored articles showed at Special:FeedbackUs."
+		"otrsAddress": {
+			"value": "info@wikiskripta.eu",
+			"description": "Email address checked by OTRS."
 		},
-		"namespaces": {
-			"value": "",
-			"description": ""
+		"articleScoresItemsCount": {
+			"value": 100,
+			"description": "Pager. Number of scored articles showed at Special:FeedbackUs."
 		}
-	}
+	},
 	"manifest_version": 2
 }

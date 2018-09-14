@@ -20,15 +20,9 @@ class FeedbackUsHooks {
 		// FeedbackUs only for articles from defined namespace (Main page exluded)
 		if( !$out->isArticle() ) return true;
 		$title = $out->getTitle();
-
-		# URL of this wiki
-		if( !defined( 'WIKIURL' ) ) {
-			define( 'WIKIURL', rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
-		}
-		# Read configuration options 
-		require_once( __DIR__ . '/config.php' );
-
-		$allowed = strpos( ',' . FU_NAMESPACES . ',', ',' . $title->getNamespace() . ',' );
+		$config = $this->getConfig();
+		
+		$allowed = strpos( ',' . $config->get("namespaces") . ',', ',' . $title->getNamespace() . ',' );
 		
 		if ( !$title->isMainPage() && $allowed !== false ) {
 			// show icon

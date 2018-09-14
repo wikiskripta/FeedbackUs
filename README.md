@@ -29,10 +29,7 @@ $wgGroupPermissions['*']['feedbackus'] = false;
 $wgGroupPermissions['user']['feedbackus'] = false;
 $wgGroupPermissions['sysop']['feedbackus'] = true;
 ```
-* Run `maintenance/update.php`, _feedbackus_, _articlescores_ and _articlescores_sum_ tables will be added.
-* Former ArticleScores and Blackdot extensions are joined into this one. 
-    * _articlescores_ and _articlescores_sum_ tables are still in use. 
-    * _blackdot_ table should be deleted after initial import `INSERT INTO feedbackus(page_id,comment,timestamp) SELECT page_id,comment,last_comment_timestamp FROM blackdot ORDER BY id;`
+* Run `maintenance/update.php`, _feedbackus_, _articlescores_ and _articlescores_sum_ tables will be added (if not exist).
 
 
 ## Configuration
@@ -46,7 +43,7 @@ __"pageCount":__
 * Pager. Default 50 comments on page.
 __"sendToOtrs":__
 * If set (=1), comments from magic box with given sender email are sent to email address in __"otrsAddress"__.
-__"articleScoresItemsCount"
+__"articleScoresItemsCount":__
 * Pager. Number of scored articles showed at Special:FeedbackUs.
 
 
@@ -67,4 +64,4 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://bitbucket.org/josmart/)
-* MIT License, Copyright (c) 2017 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2018 First Faculty of Medicine, Charles University

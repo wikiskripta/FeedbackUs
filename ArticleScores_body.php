@@ -21,16 +21,12 @@ class ArticleScores extends SpecialPage {
 
 		$this->setHeaders();
 		$out = $this->getOutput();
+		$config = $this->getConfig();
 		$dbr = wfGetDB( DB_SLAVE );
 
 		# URL of this wiki
-		if( !defined( 'WIKIURL' ) ) {
-			define( 'WIKIURL', rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
-		}
-
-		# Read configuration options 
-		require_once( __DIR__ . '/config.php' );
-		
+		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
+				
 		####################################
 		# show best ratings
 		####################################
@@ -47,9 +43,9 @@ class ArticleScores extends SpecialPage {
 				array( 'page_id', 'score', 'usersCount' ),
 				'',
 				'__METHOD__',
-				array( 'ORDER BY' => 'score DESC','LIMIT' => AS_SPECIAL_ITEMS )
+				array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresItemsCount") )
 			);
-			$title = AS_SPECIAL_ITEMS . ' '. $this->msg( 'articlescores-best' )->text();
+			$title = $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-best' )->text();
 			break;
 
 			case 'worst':
@@ -58,9 +54,9 @@ class ArticleScores extends SpecialPage {
 				array( 'page_id', 'score', 'usersCount' ),
 				'',
 				'__METHOD__',
-				array( 'ORDER BY' => 'score', 'LIMIT' => AS_SPECIAL_ITEMS )
+				array( 'ORDER BY' => 'score', 'LIMIT' => $config->get("articleScoresItemsCount") )
 			);
-			$title = AS_SPECIAL_ITEMS . ' '. $this->msg( 'articlescores-worst' )->text();
+			$title = $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-worst' )->text();
 			break;
 
 			default:
@@ -69,7 +65,7 @@ class ArticleScores extends SpecialPage {
 				array( 'page_id', 'score', 'usersCount' ),
 				array( 'stars' => $param[4] ),
 				'__METHOD__',
-				array( 'ORDER BY' => 'score DESC', 'LIMIT' => AS_SPECIAL_ITEMS )
+				array( 'ORDER BY' => 'score DESC', 'LIMIT' => $config->get("articleScoresItemsCount") )
 			);
 			$title = $this->msg( 'articlescores-score' )->text() . ' ' . $param[4];
 			break;
@@ -77,13 +73,13 @@ class ArticleScores extends SpecialPage {
 
 		$out->mBodytext .= "<h1>$title</h1>";
 		//$out->mBodytext .= $this->msg( 'articlescores-desc' )->text() . '<br/>';
-		$info = str_replace( '#ITEMS', AS_SPECIAL_ITEMS, $this->msg( 'articlescores-sp-info' )->text() );
+		$info = str_replace( '#ITEMS', $config->get("articleScoresItemsCount"), $this->msg( 'articlescores-sp-info' )->text() );
 		$out->mBodytext .= "$info<br/><br/>";
 
 		$output = "<form id='ascoresMenu' name='ascoresMenu' method='get' action=''>\n";
 
 		// get url of the extension
-		$url = WIKIURL . '/index.php?title=Special:ArticleScores';
+		$url = $wikiurl . '/index.php?title=Special:ArticleScores';
 
 		$output .= "<select name='ascoresDDmenu.' onchange='location.href=\"$url/\" +";
 		$output .= "this.options[this.selectedIndex].value'>\n";
@@ -91,12 +87,12 @@ class ArticleScores extends SpecialPage {
 		if ( $param=='best' ) {
 			$output .= "selected='selected'";
 		}
-		$output .= '>' . AS_SPECIAL_ITEMS . ' '. $this->msg( 'articlescores-best' )->text() . "</option>\n";
+		$output .= '>' . $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-best' )->text() . "</option>\n";
 		$output .= "<option value='worst' ";
 		if ( $param=='worst' ) {
 			$output .= "selected='selected'";
 		}
-		$output .= '>'.AS_SPECIAL_ITEMS.' '.$this->msg('articlescores-worst')->text()."</option>\n";
+		$output .= '>'. $config->get("articleScoresItemsCount") . ' '.$this->msg('articlescores-worst')->text()."</option>\n";
 		for ( $i=1; $i<6; $i++ ) {
 			$output .= "<option value='star$i' ";
 			if ( $param == "star$i" ) {
@@ -119,7 +115,7 @@ class ArticleScores extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $row->page_id )
 			);
-			if( $res2 && strpos( ',' . FU_NAMESPACES . ',', ',' . $res2->page_namespace . ',' ) !== false ) {
+			if( $res2 && strpos( ',' . $config->get("namespaces") . ',', ',' . $res2->page_namespace . ',' ) !== false ) {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
 				$output .= "|-\n";

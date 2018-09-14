@@ -5,27 +5,16 @@
 
 ( function ( mw, $ ) {
 	// send message from magic box
-	
-	// insert send button (and onclick event)
-	/*
-	var saveButton = new OO.ui.ButtonWidget( {
-	  label: mw.message( 'feedbackus-send-button' ).plain(),
-	  flags:'constructive',
-	  classes: ['FeedbackUsSendButtonMagic']
-	} );    
-	$( '#FeedbackUsFormMagic' ).append( saveButton.$element );
-	*/
-	
 	$("#FeedbackUsFormMagic").show();
 	
 	$( '.FeedbackUsSendButtonMagic' ).click( function( event ) {
 	    if( $( '#FeedbackUsCommentMagic' ).val().length > 0 ) {
 		// send feedback
 		var fudivider = '';
-		if( window.location.href.indexOf("/index.php/") > -1 ) {
+		if( window.location.href.indexOf("/index.php/") != -1 ) {
 			fudivider = "/index.php/";
 		}
-		else if( window.location.href.indexOf("/wiki/") > -1 ) {
+		else if( window.location.href.indexOf("/wiki/") != -1 ) {
 			fudivider = "/wiki/";
 		}
 		else {

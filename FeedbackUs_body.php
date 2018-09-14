@@ -25,15 +25,11 @@ class FeedbackUs extends SpecialPage {
 		$request = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
+		$config = $this->getConfig();
 
 		# URL of this wiki
-		if( !defined( 'WIKIURL' ) ) {
-			define( 'WIKIURL', rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
-		}
-
-		# Read configuration options 
-		require_once( __DIR__ . '/config.php' );
-		
+		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
+				
 		$page_id = $request->getInt( 'page_id' );
 		$dbr = wfGetDB( DB_SLAVE );
 		$dbw = wfGetDB( DB_MASTER );
@@ -55,7 +51,7 @@ class FeedbackUs extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $page_id )
 			);
-			if ( $res !==false && strpos( ',' . FU_NAMESPACES . ',', ',' .
+			if ( $res !==false && strpos( ',' . $config->get("namespaces") . ',', ',' .
 					$res->page_namespace . ',') === false ) {
 				$namespace_allowed = false;
 			}
@@ -246,10 +242,10 @@ class FeedbackUs extends SpecialPage {
 				$ret = 'err';
 			}
 			
-			if( FU_SEND_TO_OTRS && !empty( $email ) ) {
+			if( $config->get("sendToOtrs") && !empty( $email ) ) {
 				// pošli zprávu do OTRS
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-				if( !$this->sendMail( FU_OTRS_ADDRESS, $email, $subject, $comment ) ) {
+				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $comment ) ) {
 					$ret = 'err';
 				}
 			}
@@ -283,14 +279,14 @@ class FeedbackUs extends SpecialPage {
 				// pager
 				$page = $request->getInt('fuPageNumber',1);
 				if(!$page) $page=1;
-				echo "<script>window.location.href='".WIKIURL . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
+				echo "<script>window.location.href='".$wikiurl . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
 				exit;
 			}
 		}
 
 		$this->checkPermissions();
 		$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
-		if( FU_SEND_TO_OTRS ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
+		if( $config->get("sendToOtrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
 		
 		// prepare output table 
 		$tableheader = "<table class='wikitable'>";
@@ -373,18 +369,18 @@ class FeedbackUs extends SpecialPage {
 				array( 'page_id', 'comment', 'timestamp', 'email', 'id' ),
 				'comment!=""',
 				'__METHOD__',
-				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => FU_PAGE_COUNT, "OFFSET" => (($page-1)*FU_PAGE_COUNT) )
+				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => $config->get("pageCount"), "OFFSET" => (($page-1)*$config->get("pageCount")) )
 			);
 			foreach ( $res as $row ) {
 				$output .= "<tr style='vertical-align:top'>";
 				if( $row->page_id == 0 ) {
-					$output .= "<td><a href='". WIKIURL . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>MAGIC</a></td>";
+					$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>MAGIC</a></td>";
 				}
 				else {
 					if( !($article = Article::newFromId( $row->page_id )) ) continue;
 					$title = $article->getTitle();
-					$output .= "<td><a href='". WIKIURL . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>" . preg_replace('/_/', ' ', $title->getPrefixedDBkey() ) . "</a> ";
-					$output .= "<a href='". WIKIURL . "/index.php?title=" . $title->getPrefixedDBkey() . "'>&#8921</a></td>";
+					$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>" . preg_replace('/_/', ' ', $title->getPrefixedDBkey() ) . "</a> ";
+					$output .= "<a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>&#8921</a></td>";
 				}
 				$crr = explode( '$', $row->comment, 2 );
 				if( sizeof( $crr ) > 1 ) {
@@ -401,12 +397,12 @@ class FeedbackUs extends SpecialPage {
 				}
 				$output .= "<td>$comm</td>";
 				$output .= "<td>" . $row->email . "</td>";
-				if( FU_SEND_TO_OTRS ) $output .= ' (OTRS)';
+				if( $config->get("sendToOtrs") ) $output .= ' (OTRS)';
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
 				$hascontent = true;
-				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= "<td><a href='".$wikiurl."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 			}
@@ -444,7 +440,7 @@ class FeedbackUs extends SpecialPage {
 				else {
 					if( !($article = Article::newFromId( $page_id )) ) continue;
 					$title = $article->getTitle();
-					$output .= "<td><a href='". WIKIURL . "/index.php?title=" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>";
+					$output .= "<td><a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>";
 				}
 				$crr = explode( '$', $row->comment, 2 );
 				if( sizeof( $crr ) > 1 ) {
@@ -461,11 +457,11 @@ class FeedbackUs extends SpecialPage {
 				}
 				$output .= "<td>$comm</td>";
 				$output .= "<td>" . $row->email . "</td>";
-				if( FU_SEND_TO_OTRS ) $output .= ' (OTRS)';
+				if( $config->get("sendToOtrs") ) $output .= ' (OTRS)';
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
-				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= "<td><a href='".$wikiurl."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
 				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
 				$output .= "</tr>";
 				$hascontent = true;			
