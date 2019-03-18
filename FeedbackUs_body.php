@@ -100,6 +100,15 @@ class FeedbackUs extends SpecialPage {
 				if ( !$res ) {
 					$ret = 'err';
 				}
+
+				if( $config->get("sendToOtrs") ) {
+					// pošli zprávu do OTRS
+					if(empty( $email )) $email = $config->get("otrsAddress");
+					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
+					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $comment ) ) {
+						$ret = 'err';
+					}
+				}
 			}
 			
 			
@@ -238,8 +247,9 @@ class FeedbackUs extends SpecialPage {
 				$ret = 'err';
 			}
 			
-			if( $config->get("sendToOtrs") && !empty( $email ) ) {
+			if( $config->get("sendToOtrs") ) {
 				// pošli zprávu do OTRS
+				if(empty( $email )) $email = $config->get("otrsAddress");
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
 				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $comment ) ) {
 					$ret = 'err';
