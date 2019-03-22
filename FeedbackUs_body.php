@@ -402,8 +402,7 @@ class FeedbackUs extends SpecialPage {
 					$comm = htmlspecialchars( $row->comment, ENT_QUOTES );;
 				}
 				$output .= "<td>$comm</td>";
-				$output .= "<td>" . $row->email . "</td>";
-				if( $config->get("sendToOtrs") ) $output .= ' (OTRS)';
+				$output .= "<td>" . $row->email . ($config->get("sendToOtrs") ? ' (OTRS)' : '') . "</td>";
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
