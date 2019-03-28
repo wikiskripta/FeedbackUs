@@ -105,7 +105,10 @@ class FeedbackUs extends SpecialPage {
 					// pošli zprávu do OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
 					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $comment ) ) {
+					$body = $wikiurl. "/index.php?curid=" . $page_id . "\r\n\r\n" . $comment . "\r\n\r\n";
+					$optionsArr = explode("|", $options);
+					foreach($optionsArr as $opt) $body .= $this->getOptionsText( $opt ) . "\r\n";
+					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 						$ret = 'err';
 					}
 				}
@@ -251,7 +254,8 @@ class FeedbackUs extends SpecialPage {
 				// pošli zprávu do OTRS
 				if(empty( $email )) $email = $config->get("otrsAddress");
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $comment ) ) {
+				$body = $wikiurl. "/index.php?curid=" . $page_id . "\r\n\r\n" . $comment . "\r\n\r\n";
+				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 					$ret = 'err';
 				}
 			}
