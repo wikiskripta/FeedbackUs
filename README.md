@@ -4,7 +4,7 @@ Mediawiki extension.
 
 ## Description
 
-* Version 1.1
+* Version 1.2
 * Extension gives feedback regarding the articles
     * User can send messages to wiki sysops.
 	* User can see and change article's rating.
@@ -22,7 +22,7 @@ SpecialPage:ArticleScores diplays a chart of reviewed articles
 * Download and place the extension to your /extensions/ folder.
 * Add the following code to your LocalSettings.php: 
 
-```
+``` php
 wfLoadExtension( 'FeedbackUs' );
 $wgGroupPermissions['*']['feedbackus'] = false;
 $wgGroupPermissions['sysop']['feedbackus'] = true;
@@ -54,9 +54,13 @@ This extension is available in English and Czech language. For other languages, 
 
 ### 1.1
 
-* manifest version 2
+* Manifest version 2
 * MW 1.29+
-* config moved to _extensions.json_
+* Config moved to _extensions.json_
+
+### 1.2
+
+* Bootstrap modals
 
 ## Authors and license
 

@@ -1,5 +1,5 @@
 /**
- * Add onclick for FeedbackUsLink
+ * Add onclick for fbuModal
  * Send feedback
  */
 
@@ -7,22 +7,29 @@
 
 	if( mw.config.get("wgIsArticle") == false || window.location.href.indexOf("veaction=edit") !== -1  ) return true;
 
-	var content = $( '#FeedbackUsLink' ).text();
-	var tmp = $( '#FeedbackUsLink' ).attr( 'alt' ).split("@");
 	var wikipath = window.location.origin;
 
-	// Add link to Wisky skin
-	$("#firstHeading").append('<div id="ca-feedback" class="noprint" style=""><a><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></a>');
+	// Add feedback icon 
+	$("#firstHeading").append('<div id="ca-feedback" data-toggle="modal" data-target="#fbuModal" class="noprint" style=""><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></div>');
+
+
+	
+	$('#fbuModal').on('shown.bs.modal', function (e) { // or show
+		// do something...
+	})
+
+
+	$('#fbuModal').on('hidden.bs.modal', function (e) { // or hide
+		// do something...
+	})
 
 	// Bind click handler
 	$("#ca-feedback > a").click( function ( e ) {
 		e.preventDefault();
 		
-		var page_id = $( '#FeedbackUsLink' ).attr( 'class' ).substr( 3 );
-		var content = $( '#FeedbackUsLink' ).text();
-		var tmp = $( '#FeedbackUsLink' ).attr( 'alt' ).split("@");
-		var rating = tmp[0];
-		var rev_id = tmp[1];
+		var page_id = $( '#fbuModal' ).data('pageid');
+		var rating = $( '#fbuModal' ).data('rating');
+		var rev_id = $( '#fbuModal' ).data('revid');
 		
 		if( $( '#FeedbackUsForm').length <= 0 ) {
 			var position = $( this ).position();
@@ -150,7 +157,8 @@
 							*/
 							if( $.isNumeric(server_response) ) {
 								// došlo k hodnocení, aktualizuj hvězdičky
-								$( '#FeedbackUsLink' ).attr("alt", server_response + "@" + rev_id + "@" + wikipath);
+								$( '#fbuModal' ).data('rating', server_response);
+								$( '#fbuModal' ).data('revid', rev_id);
 							}
 							
 							if( server_response == 'articlescores-dayips-not-today' ) {

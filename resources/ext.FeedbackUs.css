@@ -3,8 +3,10 @@
 
 #ca-feedback {
 	float:right;
+	cursor:pointer;
 }
 
+/*
 
 #ca-feedback > a {
 	cursor:pointer;	
@@ -147,3 +149,4 @@ ul#FeedbackUsOptions {
 	text-shadow: 0 1px rgba(91, 108, 116, 0.1);
 	font-size: 1rem;
 }
+*/

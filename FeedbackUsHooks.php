@@ -29,10 +29,109 @@ class FeedbackUsHooks {
 				// register module
 				$out->addModules('ext.FeedbackUs');
 				$rating = FeedbackUsHooks::getRating($out,$skin);
-				if( empty( $rating ) ) $rating = 0;
-				$lnk = "<div alt='" . $rating. "@" . $out->getRevisionId() . "' id='FeedbackUsLink' class='aid" . $page_id . "' ";
-				$lnk .= "style='display:none;'>" . $out->msg('feedbackus-link')->text() . "</div>\n";
-				$out->prependHTML( $lnk );
+				if( empty( $rating ) ) $rating = '00';
+
+				// add modal (hidden)
+				$modal = "<div id='fbuModal' class='modal fade bd-example-modal-md' tabindex='-1' role='dialog' aria-labelledby='feedbackModalLabel' aria-hidden='true' ";
+				$modal .= "data-rating='$rating' data-revid='" . $out->getRevisionId() . "' data-pageid='" . $page_id . "'>\n";
+				$modal .= "<div class='modal-dialog modal-md'>\n";		
+				$modal .= "<div class='modal-content'>\n";
+				// modal content
+				$startitle = wfMessage( "feedbackus-$rating-startitle" )->plain();
+				switch($rating) {
+					case '1':
+					$color = "red";
+					break;
+				
+					case '2':
+					$color = "orange";
+					break;
+				
+					case '3':
+					$color = "#4474c9";
+					break;
+		
+					case '4':
+					$color = "#558d18";
+					break;
+				
+					case '5':
+					$color = "green";
+					break;
+
+					default:
+					$color = "#000000";
+				}
+
+				$modal .= "gggggggggggg";
+    			$modal .= "</div>\n</div>\n</div>\n";
+				
+/*
+wfMessage( 'feedbackus-message-label-magic' )->plain()
+// insert ratings
+			
+			
+			
+			var selectbox = mw.message( 'articlescores-score' ).plain() + ":<div style='padding:3px;margin-left:8px;border-radius:2px;display:inline;background-color:" + color + ";'>" + startitle + "</div><select id='as_sel'>";
+			for( var i=0; i<6; i++ ) {
+				selectbox += "<option value='" + i + "' ";
+				if(!i) selectbox += "disabled selected";
+				selectbox += ">" + mw.message( 'feedbackus-' + i + '-startitle' ).plain() + "</option>";	
+			}
+			selectbox += "</select>";
+			$( '#FeedbackUsForm' ).append( selectbox );
+			//$( '#as_sel' ).selectmenu();
+			
+			// insert legend
+			$( '#FeedbackUsForm' ).append( "<p id='FeedbackUsFrameLegend'>" + mw.message( 'feedbackus-title' ).plain() );
+			// insert textarea and field for email
+			$( '#FeedbackUsForm' ).append( "<textarea id='FeedbackUsComment' placeholder='"
+									+ mw.message( 'feedbackus-message-label' ).plain() + "' style='font-size:1rem !important;'></textarea>" );
+			$( '#FeedbackUsForm' ).append( "<input type='text' id='FeedbackUsEmail' placeholder='"
+									+ mw.message( 'feedbackus-email-label' ).plain() + "'  style='font-size:1rem !important;'/>" );
+			// insert options
+			var fuOptions = '';
+			for( var i=0; i<3; i++ ) {
+				fuOptions += "<li><input class='fuo' id='fuo" + i + "' type='checkbox' value='1'/>";
+				fuOptions += "<label for='fuo" + i + "'>" + mw.message( 'feedbackus-option' + i ).plain() + "</label></li>";
+			}
+			var optionTitle = "<span id='FeedbackUsOptionsTitle'>" + mw.message( 'feedbackus-issues' ).plain() + "</span>";
+			$( '#FeedbackUsForm' ).append( optionTitle + "<ul id='FeedbackUsOptions' style='margin-top:5px;'>" + fuOptions + "</ul>" );
+			
+			// insert send button (and onclick event)
+			$( '#FeedbackUsForm' ).append( "<button class='FeedbackUsSendButton'>" + mw.message( 'feedbackus-send-button' ).plain() + "</button>" );
+						
+			// cancel
+			$( '#FeedbackUsCancelButton' ).click(function() {
+				$( '#FeedbackUsForm' ).animate({
+					opacity: '0'
+				}, 300, function() {
+					// Animation complete.
+					$( '#FeedbackUsCancelButton' ).off('click');
+					$( '.FeedbackUsSendButton' ).off('click');
+					$( '#FeedbackUsForm' ).remove();
+				});
+			});
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				$out->prependHTML( $modal );
 			}
 		}
 		if( preg_match( "/FeedbackUsFormMagic/", $out->mBodytext ) ) {
