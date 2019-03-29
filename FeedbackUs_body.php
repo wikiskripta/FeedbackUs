@@ -256,7 +256,7 @@ class FeedbackUs extends SpecialPage {
 				// pošli zprávu do OTRS
 				if(empty( $email )) $email = $config->get("otrsAddress");
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-				$body = $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL;
+				$body = "MAGICBOX" . PHP_EOL . PHP_EOL . $comment;
 				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 					$ret = 'err';
 				}

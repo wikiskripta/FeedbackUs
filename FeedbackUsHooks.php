@@ -16,14 +16,12 @@ class FeedbackUsHooks {
 	 * @param $skin Skin: instance of Skin
 	 */
 	public static function activateFB( &$out, &$skin ) {
-
 		// FeedbackUs only for articles from defined namespace (Main page exluded)
 		if( !$out->isArticle() ) return true;
 		$title = $out->getTitle();
 		$config = $out->getConfig();
 		
 		$allowed = in_array($title->getNamespace(), $config->get("namespaces")) ? true:false;
-
 		if ( !$title->isMainPage() && $allowed !== false ) {
 			// show icon
 			$page_id = $out->getWikiPage()->getId();
