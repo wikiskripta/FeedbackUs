@@ -28,7 +28,7 @@ class FeedbackUs extends SpecialPage {
 		$config = $this->getConfig();
 
 		# URL of this wiki
-		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );
+		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '/' );
 				
 		$page_id = $request->getInt( 'page_id' );
 		$dbr = wfGetDB( DB_SLAVE );
@@ -106,7 +106,10 @@ class FeedbackUs extends SpecialPage {
 					// pošli zprávu do OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
 					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-					$body = $wikiurl. "/index.php?curid=" . $page_id . "\r\n\r\n" . $comment . "\r\n\r\n" . $this->getOptionsText( $options );
+					$opArr = $this->getOptionsText( $options );
+					$opts = '';
+					foreach( $opArr as $o ) $opts .= "$o\r\n";
+					$body = $wikiurl. "/index.php?curid=" . $page_id . "\r\n\r\n" . $comment . "\r\n\r\n" . $opts;
 					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 						$ret = 'err';
 					}
