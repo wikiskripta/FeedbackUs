@@ -74,15 +74,7 @@
 				break;
 			}
 			
-			/*
-			if( rating > 0 ) {
-				for( var i=0; i<rating; i++ ) {
-					$( '#FeedbackUsForm' ).append( "<img id='as_star' src='" + wikipath + "/extensions/FeedbackUs/resources/img/star_white.png' alt='" + startitle + "'/>" );
-				}
-				$( '#FeedbackUsForm' ).append(" ");
-			}
-			*/
-			
+				
 			var selectbox = mw.message( 'articlescores-score' ).plain() + ":<div style='padding:3px;margin-left:8px;border-radius:2px;display:inline;background-color:" + color + ";'>" + startitle + "</div><select id='as_sel'>";
 			for( var i=0; i<6; i++ ) {
 				selectbox += "<option value='" + i + "' ";

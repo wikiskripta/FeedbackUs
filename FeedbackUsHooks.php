@@ -63,74 +63,31 @@ class FeedbackUsHooks {
 					$color = "#000000";
 				}
 
-				$modal .= "gggggggggggg";
+				$modal .= wfMessage( 'articlescores-score' )->plain() . ": <span style='color:$color;'>$startitle</span>\n";
+				// select ratings
+				$modal .= "<select id='as_sel'>\n";
+				for($i=0; $i<6; $i++ ) {
+					$modal .= "<option value='$i' ";
+					if(!$i) $modal .= "disabled selected";
+					$modal .= ">" . wfMessage( "feedbackus-$i-startitle" ).plain() . "</option>\n";
+				}
+				$modal .= "</select>\n";
+				// legend
+				$modal .= "<div>" . wfMessage( "feedbackus-title" ).plain() . "</div>\n";
+				// insert textarea and field for email
+				$modal .= "<textarea id='FeedbackUsComment' placeholder='" . wfMessage( "feedbackus-message-label" ).plain() . "'></textarea>\n";
+				$modal .= "<input type='text' id='FeedbackUsEmail' placeholder='" . wfMessage( 'feedbackus-email-label' ).plain() + "'>\n";
+				// insert options
+				$modal .= "<div>" + wfMessage( 'feedbackus-issues' ).plain() + "</div>\n";
+				$modal .= "<ul id='FeedbackUsOptions'>\n";
+				for($i=0; $i<3; $i++) {
+					$modal .= "<li>\n<input id='fuo$i' type='checkbox' value='1'>";
+					$modal .= "<label for='fuo$i'>" . wfMessage( "feedbackus-option$i" ).plain() . "</label>\n</li>\n";
+				}
+				$modal .= "</ul>\n";
+				// insert send button (and onclick event)
+				$modal .= "<button class=''>" . wfMessage( 'feedbackus-send-button' ).plain() . "</button>\n";
     			$modal .= "</div>\n</div>\n</div>\n";
-				
-/*
-wfMessage( 'feedbackus-message-label-magic' )->plain()
-// insert ratings
-			
-			
-			
-			var selectbox = mw.message( 'articlescores-score' ).plain() + ":<div style='padding:3px;margin-left:8px;border-radius:2px;display:inline;background-color:" + color + ";'>" + startitle + "</div><select id='as_sel'>";
-			for( var i=0; i<6; i++ ) {
-				selectbox += "<option value='" + i + "' ";
-				if(!i) selectbox += "disabled selected";
-				selectbox += ">" + mw.message( 'feedbackus-' + i + '-startitle' ).plain() + "</option>";	
-			}
-			selectbox += "</select>";
-			$( '#FeedbackUsForm' ).append( selectbox );
-			//$( '#as_sel' ).selectmenu();
-			
-			// insert legend
-			$( '#FeedbackUsForm' ).append( "<p id='FeedbackUsFrameLegend'>" + mw.message( 'feedbackus-title' ).plain() );
-			// insert textarea and field for email
-			$( '#FeedbackUsForm' ).append( "<textarea id='FeedbackUsComment' placeholder='"
-									+ mw.message( 'feedbackus-message-label' ).plain() + "' style='font-size:1rem !important;'></textarea>" );
-			$( '#FeedbackUsForm' ).append( "<input type='text' id='FeedbackUsEmail' placeholder='"
-									+ mw.message( 'feedbackus-email-label' ).plain() + "'  style='font-size:1rem !important;'/>" );
-			// insert options
-			var fuOptions = '';
-			for( var i=0; i<3; i++ ) {
-				fuOptions += "<li><input class='fuo' id='fuo" + i + "' type='checkbox' value='1'/>";
-				fuOptions += "<label for='fuo" + i + "'>" + mw.message( 'feedbackus-option' + i ).plain() + "</label></li>";
-			}
-			var optionTitle = "<span id='FeedbackUsOptionsTitle'>" + mw.message( 'feedbackus-issues' ).plain() + "</span>";
-			$( '#FeedbackUsForm' ).append( optionTitle + "<ul id='FeedbackUsOptions' style='margin-top:5px;'>" + fuOptions + "</ul>" );
-			
-			// insert send button (and onclick event)
-			$( '#FeedbackUsForm' ).append( "<button class='FeedbackUsSendButton'>" + mw.message( 'feedbackus-send-button' ).plain() + "</button>" );
-						
-			// cancel
-			$( '#FeedbackUsCancelButton' ).click(function() {
-				$( '#FeedbackUsForm' ).animate({
-					opacity: '0'
-				}, 300, function() {
-					// Animation complete.
-					$( '#FeedbackUsCancelButton' ).off('click');
-					$( '.FeedbackUsSendButton' ).off('click');
-					$( '#FeedbackUsForm' ).remove();
-				});
-			});
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 				$out->prependHTML( $modal );
 			}
 		}
@@ -219,13 +176,11 @@ wfMessage( 'feedbackus-message-label-magic' )->plain()
 				// revision has been rated
 				if($res2->usersCount) {
 					$revScore = $res2->scoreSum/$res2->usersCount;
-					//$wSum = $wSum + $w;
 					$wSum = $wSum + $weight;
 				}
 				else {
 					$revScore = 0;
 				}
-				//$sc = $sc + $revScore * $w;
 				$sc = $sc + $revScore * $weight;
 				$rnumber = $rnumber + $res2->usersCount;	// sum of ratings
 			}
@@ -238,13 +193,11 @@ wfMessage( 'feedbackus-message-label-magic' )->plain()
 			$stars = floor(0.5+$sc/$wSum);	// number of stars (rounded rating)
 			// save recent score to feedbackus_sum
 			$dbrmaster = wfGetDB(DB_MASTER);
-			//$dbrmaster->begin();
 			$res = $dbrmaster->update(
 				"articlescores_sum",
 				array("score" => $sc/$wSum,"stars" => $stars,"usersCount" => $rnumber),
 				array("page_id" => $rev_page)
 			);
-			//$dbrmaster->commit();
 			$ret = $stars;
 		}
 		else {
@@ -266,10 +219,6 @@ wfMessage( 'feedbackus-message-label-magic' )->plain()
 		$output .= "<input type='text' id='FeedbackUsEmailMagic' placeholder='";
 		$output .= wfMessage( 'feedbackus-email-label' )->plain() . "'/>";
 		$output .= "<button class='FeedbackUsSendButtonMagic'>" . wfMessage( 'feedbackus-send-button' )->plain() . "</button>";
-		/*
-		$output .= "<button id='FeedbackUsSendButtonMagic' class='mw-ui-button mw-ui-progressive'>";
-		$output .= wfMessage( 'feedbackus-send-button' )->plain() . "</button>";
-		*/
 		$output .= "</div>";
 		return $parser->insertStripItem( $output, $parser->mStripState );
 	}
