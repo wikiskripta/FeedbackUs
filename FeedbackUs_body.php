@@ -218,6 +218,7 @@ class FeedbackUs extends SpecialPage {
 				if ( $ok ) $ret = FeedbackUsHooks::saveScore( $page_id );
 				
 			}
+			elseif( $ret == 'ok'  ) $ret = 'not-rated';
 						
 			$lb = wfGetLBFactory();
 			$lb->shutdown();
@@ -397,15 +398,18 @@ class FeedbackUs extends SpecialPage {
 				$crr = explode( '$', $row->comment, 2 );
 				if( sizeof( $crr ) > 1 ) {
 					$opts = $this->getOptionsText( $crr[0] );
-					$comm = '<ul>';
-					foreach( $opts as $o ) {
-						$comm .= "<li>$o</li>";
+					$comm = '';
+					if(sizeof($opts)>0) {
+						$comm .= '<ul>';
+						foreach( $opts as $o ) {
+							$comm .= "<li>$o</li>";
+						}
+						$comm .= '</ul>';
 					}
-					$comm .= '</ul>';
 					$comm .= htmlspecialchars( $crr[1], ENT_QUOTES );
 				}
 				else {
-					$comm = htmlspecialchars( $row->comment, ENT_QUOTES );;
+					$comm = htmlspecialchars( $row->comment, ENT_QUOTES );
 				}
 				$output .= "<td>$comm</td>";
 				$output .= "<td>" . $row->email . "</td>";

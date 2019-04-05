@@ -39,17 +39,6 @@
 			"dependencies": [
 			],
 			"messages": [
-				"feedbackus-frame-legend",
-				"feedbackus-cancel-button",
-				"feedbackus-send-button",
-				"feedbackus-message-label",
-				"feedbackus-thanks",
-				"feedbackus-email-label",
-				"feedbackus-issues",
-				"feedbackus-option0",
-				"feedbackus-option1",
-				"feedbackus-option2",
-				"feedbackus-title",
 				"feedbackus-00-startitle",
 				"feedbackus-0-startitle",
 				"feedbackus-1-startitle",
@@ -57,8 +46,7 @@
 				"feedbackus-3-startitle",
 				"feedbackus-4-startitle",
 				"feedbackus-5-startitle",
-				"articlescores-one-per-day",
-				"articlescores-score"
+				"articlescores-one-per-day"
 			]
 		},
 		"ext.FeedbackUs.magic": {

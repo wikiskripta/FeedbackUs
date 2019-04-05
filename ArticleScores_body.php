@@ -72,7 +72,6 @@ class ArticleScores extends SpecialPage {
 		}
 
 		$out->mBodytext .= "<h1>$title</h1>";
-		//$out->mBodytext .= $this->msg( 'articlescores-desc' )->text() . '<br/>';
 		$info = str_replace( '#ITEMS', $config->get("articleScoresItemsCount"), $this->msg( 'articlescores-sp-info' )->text() );
 		$out->mBodytext .= "$info<br/><br/>";
 

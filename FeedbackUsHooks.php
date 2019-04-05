@@ -37,7 +37,7 @@ class FeedbackUsHooks {
 				$modal .= "<div class='modal-dialog modal-md'>\n";		
 				$modal .= "<div class='modal-content'>\n";
 				// modal content
-				$startitle = wfMessage( "feedbackus-$rating-startitle" )->plain();
+				$startitle = wfMessage( "feedbackus-$rating-startitle" )->text();
 				switch($rating) {
 					case '1':
 					$color = "red";
@@ -62,31 +62,61 @@ class FeedbackUsHooks {
 					default:
 					$color = "#000000";
 				}
-
-				$modal .= wfMessage( 'articlescores-score' )->plain() . ": <span style='color:$color;'>$startitle</span>\n";
+				// header - show ratings
+				$modal .= "<div class='modal-header' style='background-color:$color;'>\n";
+				$modal .= "<h4 class='modal-title'>" . wfMessage( 'articlescores-score' )->text() . ": <span>$startitle</span></h4>\n";
+				$modal .= "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>\n";
+				$modal .= "<span aria-hidden='true'>&times;</span>\n";
+        		$modal .= "</button>\n";
+				$modal .= "</div>\n"; // end of header
+				
+				// body
+				$modal .= "<div class='modal-body'>\n<form>\n";
+				
 				// select ratings
-				$modal .= "<select id='as_sel'>\n";
+				$modal .= "<div class='form-group'>\n";
+				$modal .= "<select id='as_sel' class='form-control'>\n";
 				for($i=0; $i<6; $i++ ) {
 					$modal .= "<option value='$i' ";
 					if(!$i) $modal .= "disabled selected";
-					$modal .= ">" . wfMessage( "feedbackus-$i-startitle" ).plain() . "</option>\n";
+					$modal .= ">" . wfMessage( "feedbackus-$i-startitle" )->text() . "</option>\n";
 				}
-				$modal .= "</select>\n";
+				$modal .= "</select>\n</div>\n";
+				
 				// legend
-				$modal .= "<div>" . wfMessage( "feedbackus-title" ).plain() . "</div>\n";
+				$modal .= "<div>" . wfMessage( "feedbackus-title" )->text() . "</div>\n";
+				
 				// insert textarea and field for email
-				$modal .= "<textarea id='FeedbackUsComment' placeholder='" . wfMessage( "feedbackus-message-label" ).plain() . "'></textarea>\n";
-				$modal .= "<input type='text' id='FeedbackUsEmail' placeholder='" . wfMessage( 'feedbackus-email-label' ).plain() + "'>\n";
-				// insert options
-				$modal .= "<div>" + wfMessage( 'feedbackus-issues' ).plain() + "</div>\n";
-				$modal .= "<ul id='FeedbackUsOptions'>\n";
+				$modal .= "<div class='form-group'>\n";
+				$modal .= "<textarea id='FeedbackUsComment' class='form-control' placeholder='" . wfMessage( "feedbackus-message-label" )->text() . "'></textarea>\n";
+				$modal .= "</div>\n";
+				$modal .= "<div class='form-group'>\n";
+				$modal .= "<input type='email' id='FeedbackUsEmail' class='form-control' placeholder='" . wfMessage( 'feedbackus-email-label' )->text() . "'>\n";
+				$modal .= "</div>\n";
+				
+				// options - checkboxes
+				$modal .= "<div class='mb-2'>" . wfMessage( 'feedbackus-issues' )->text() . "</div>\n";
 				for($i=0; $i<3; $i++) {
-					$modal .= "<li>\n<input id='fuo$i' type='checkbox' value='1'>";
-					$modal .= "<label for='fuo$i'>" . wfMessage( "feedbackus-option$i" ).plain() . "</label>\n</li>\n";
+					$modal .= "<div class='form-check'>\n";
+					$modal .= "<input class='form-check-input fuo' type='checkbox' value='1' id='fuo$i'>\n";
+					$modal .= "<label class='form-check-label' for='fuo$i'>\n";
+    				$modal .= wfMessage( "feedbackus-option$i" )->text();
+					$modal .= "</label>\n";
+					$modal .= "</div>\n";
 				}
-				$modal .= "</ul>\n";
-				// insert send button (and onclick event)
-				$modal .= "<button class=''>" . wfMessage( 'feedbackus-send-button' ).plain() . "</button>\n";
+
+				// insert send and cancel buttons
+				$modal .= "<button class='btn btn-dark mt-3'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
+
+				// alerts
+				$modal .= "<div class='alert alert-success d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'feedbackus-thanks' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "<div class='alert alert-danger d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'articlescores-one-per-day' )->text() . "\n";
+				$modal .= "</div>\n";
+
+				$modal .= "</form>\n</div>\n"; // end of body
     			$modal .= "</div>\n</div>\n</div>\n";
 				$out->prependHTML( $modal );
 			}
@@ -215,10 +245,10 @@ class FeedbackUsHooks {
 	public static function efFeedbackUs_Render( &$parser, $width=300, $height=400 ) {
 		$output = "<div id='FeedbackUsFormMagic' style='width:".$width."px;display:none;'>";
 		$output .= "<textarea id='FeedbackUsCommentMagic' style='width:".$width."px;height:".$height."px' placeholder='";
-		$output .= wfMessage( 'feedbackus-message-label-magic' )->plain() . "'></textarea>";
+		$output .= wfMessage( 'feedbackus-message-label-magic' )->text() . "'></textarea>";
 		$output .= "<input type='text' id='FeedbackUsEmailMagic' placeholder='";
-		$output .= wfMessage( 'feedbackus-email-label' )->plain() . "'/>";
-		$output .= "<button class='FeedbackUsSendButtonMagic'>" . wfMessage( 'feedbackus-send-button' )->plain() . "</button>";
+		$output .= wfMessage( 'feedbackus-email-label' )->text() . "'/>";
+		$output .= "<button class='FeedbackUsSendButtonMagic'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>";
 		$output .= "</div>";
 		return $parser->insertStripItem( $output, $parser->mStripState );
 	}

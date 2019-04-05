@@ -6,6 +6,15 @@
 	cursor:pointer;
 }
 
+#fbuModal .modal-title {
+	color:white;
+}
+
+#fbuModal .close {
+	color: #fff; 
+	opacity: 1;
+}
+
 /*
 
 #ca-feedback > a {
