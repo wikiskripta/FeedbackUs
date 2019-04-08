@@ -39,7 +39,7 @@ __"namespaces":__
 __"pageCount":__
 * Pager. Default 50 comments on page.
 __"sendToOtrs":__
-* If set (=1), comments from magic box with given sender email are sent to email address in __"otrsAddress"__.
+* If set (=1), comments are sent to email address in __"otrsAddress"__.
 __"otrsAddress":__
 * OTRS email address
 __"articleScoresItemsCount":__
