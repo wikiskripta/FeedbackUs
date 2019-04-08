@@ -42,7 +42,6 @@ class FeedbackUs extends SpecialPage {
 		// AS
 		$rev_id = $request->getInt( 'rev_id' );
 		
-
 		// is the article's namespace allowed?
 		if ( $page_id  ) {
 			$res = $dbr->selectRow(
@@ -58,7 +57,6 @@ class FeedbackUs extends SpecialPage {
 			# ###################################
 			# SEND FEEDBACK
 			####################################
-
 
 			// pokud je wiki v režimu $wgReadOnly, žádný zápis do DB
 			if( !empty( $wgReadOnly ) ) {
@@ -115,7 +113,6 @@ class FeedbackUs extends SpecialPage {
 					}
 				}
 			}
-			
 			
 
 			####################################
@@ -219,53 +216,7 @@ class FeedbackUs extends SpecialPage {
 				
 			}
 			elseif( $ret == 'ok'  ) $ret = 'not-rated';
-						
-			$lb = wfGetLBFactory();
-			$lb->shutdown();
-			
-			// Display the output
-			$out->disable();
-			header( 'Content-type: application/text; charset=utf-8' );
-			echo $ret;
-			exit;
-		}
-		elseif( $write == 1 && !empty( $comment ) && empty( $page_id ) && empty($repaired) ) {
-			// message from magic box
-			
-			$email = $request->getVal( 'email' );
-			if( empty ( $email ) || !preg_match( "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email ) ) {
-				$email = '';
-			}
-
-			// insert new feedback
-			
-			$res = $dbw->insert(
-				'feedbackus',
-				array(
-					'page_id' => 0,
-					'comment' => $comment,
-					'email' => $email
-				)
-			);
-			
-			$ret = 'ok';
-			if ( !$res ) {
-				$ret = 'err';
-			}
-			
-			if( $config->get("sendToOtrs") ) {
-				// pošli zprávu do OTRS
-				if(empty( $email )) $email = $config->get("otrsAddress");
-				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-				$body = "MAGICBOX" . PHP_EOL . PHP_EOL . $comment;
-				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
-					$ret = 'err';
-				}
-			}
-
-			$lb = wfGetLBFactory();
-			$lb->shutdown();
-			
+							
 			// Display the output
 			$out->disable();
 			header( 'Content-type: application/text; charset=utf-8' );
@@ -286,9 +237,6 @@ class FeedbackUs extends SpecialPage {
 					array( 'id' => $feedback_id )
 				);
 				
-				$lb = wfGetLBFactory();
-				$lb->shutdown();
-
 				// pager
 				$page = $request->getInt('fuPageNumber',1);
 				if(!$page) $page=1;
@@ -385,16 +333,13 @@ class FeedbackUs extends SpecialPage {
 				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => $config->get("pageCount"), "OFFSET" => (($page-1)*$config->get("pageCount")) )
 			);
 			foreach ( $res as $row ) {
+				if( $row->page_id == 0 ) continue;
+				if( !($article = Article::newFromId( $row->page_id )) ) continue;
 				$output .= "<tr style='vertical-align:top'>";
-				if( $row->page_id == 0 ) {
-					$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>MAGIC</a></td>";
-				}
-				else {
-					if( !($article = Article::newFromId( $row->page_id )) ) continue;
-					$title = $article->getTitle();
-					$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>" . preg_replace('/_/', ' ', $title->getPrefixedDBkey() ) . "</a> ";
-					$output .= "<a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>&#8921</a></td>";
-				}
+				$title = $article->getTitle();
+				$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>" . preg_replace('/_/', ' ', $title->getPrefixedDBkey() ) . "</a> ";
+				$output .= "<a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>&#8921</a></td>";
+
 				$crr = explode( '$', $row->comment, 2 );
 				if( sizeof( $crr ) > 1 ) {
 					$opts = $this->getOptionsText( $crr[0] );
@@ -424,15 +369,12 @@ class FeedbackUs extends SpecialPage {
 			$output .= "</table>";
 			if( $hascontent ) {
 				$out->addHTML( $output );
-			}
-			
-			$lb = wfGetLBFactory();
-			$lb->shutdown();
+			}			
 		}
 		else {
-			####################################
+			#########################################################
 			# SHOW DETAILS AT SPECIAL PAGE (all article's comments )
-			####################################
+			#########################################################
 			// prepare output table 
 			$output = "<br/><br/><input type='button' onclick=\"history.back();return false;\" value='<<'/>".$tableheader;
 						
@@ -448,15 +390,12 @@ class FeedbackUs extends SpecialPage {
 				array( 'ORDER BY' => 'timestamp DESC' )
 			);
 			foreach ( $res as $row ) {
+				if( $page_id == 0 ) continue;
+				if( !($article = Article::newFromId( $page_id )) ) continue;
 				$output .= "<tr style='vertical-align:top'>";
-				if( $page_id == 0 ) {
-					$output .= "<td>MAGIC</td>";
-				}
-				else {
-					if( !($article = Article::newFromId( $page_id )) ) continue;
-					$title = $article->getTitle();
-					$output .= "<td><a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>";
-				}
+				$title = $article->getTitle();
+				$output .= "<td><a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>";
+
 				$crr = explode( '$', $row->comment, 2 );
 				if( sizeof( $crr ) > 1 ) {
 					$opts = $this->getOptionsText( $crr[0] );
@@ -486,9 +425,6 @@ class FeedbackUs extends SpecialPage {
 			if( $hascontent ) {
 				$out->addHTML( $output );
 			}
-			
-			$lb = wfGetLBFactory();
-			$lb->shutdown();
 		}
 	}
 	

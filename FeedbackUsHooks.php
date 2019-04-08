@@ -121,10 +121,6 @@ class FeedbackUsHooks {
 				$out->prependHTML( $modal );
 			}
 		}
-		if( preg_match( "/FeedbackUsFormMagic/", $out->mBodytext ) ) {
-			// load module for magic box
-			$out->addModules('ext.FeedbackUs.magic');
-		}
 		return true;
 	}
 	
@@ -234,23 +230,6 @@ class FeedbackUsHooks {
 			$ret = false;
 		}
 		return $ret;
-	}
-	
-	
-	public static function efFeedbackUs_Setup( &$parser ) {
-		$parser->setFunctionHook( 'feedme', 'FeedbackUsHooks::efFeedbackUs_Render' );
-		return true;
-	}
-
-	public static function efFeedbackUs_Render( &$parser, $width=300, $height=400 ) {
-		$output = "<div id='FeedbackUsFormMagic' style='width:".$width."px;display:none;'>";
-		$output .= "<textarea id='FeedbackUsCommentMagic' style='width:".$width."px;height:".$height."px' placeholder='";
-		$output .= wfMessage( 'feedbackus-message-label-magic' )->text() . "'></textarea>";
-		$output .= "<input type='text' id='FeedbackUsEmailMagic' placeholder='";
-		$output .= wfMessage( 'feedbackus-email-label' )->text() . "'/>";
-		$output .= "<button class='FeedbackUsSendButtonMagic'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>";
-		$output .= "</div>";
-		return $parser->insertStripItem( $output, $parser->mStripState );
 	}
 
 	# create or upgrade new tables

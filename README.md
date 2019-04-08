@@ -9,7 +9,6 @@ Mediawiki extension.
     * User can send messages to wiki sysops.
 	* User can see and change article's rating.
 * Special page available only for sysops, can show the list and uncheck the corrected articles
-* {{#feedme:width|height}} ... inserting message box to a page
 
 ## SpecialPage
 
@@ -61,6 +60,7 @@ This extension is available in English and Czech language. For other languages, 
 ### 1.2
 
 * Bootstrap modals
+* Magic box removed
 
 ## Authors and license
 

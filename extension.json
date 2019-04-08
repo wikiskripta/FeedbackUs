@@ -48,23 +48,6 @@
 				"feedbackus-5-startitle",
 				"articlescores-one-per-day"
 			]
-		},
-		"ext.FeedbackUs.magic": {
-			"position": "bottom",
-			"styles": [
-				"ext.FeedbackUs.magic.css"
-			],
-			"scripts": [
-				"ext.FeedbackUs.magic.js"
-			],
-			"dependencies": [
-			],
-			"messages": [
-				"feedbackus-thanks",
-				"feedbackus-link",
-				"feedbackus-title",
-				"feedbackus-send-button"
-			]
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -73,8 +56,7 @@
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "FeedbackUsHooks::FeedbackUsUpdateSchema",
-		"BeforePageDisplay": "FeedbackUsHooks::activateFB",
-		"ParserFirstCallInit": "FeedbackUsHooks::efFeedbackUs_Setup"
+		"BeforePageDisplay": "FeedbackUsHooks::activateFB"
 	},
 	"config": {
 		"namespaces": {
