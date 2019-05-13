@@ -22,7 +22,7 @@ class FeedbackUsHooks {
 		$config = $out->getConfig();
 		
 		$allowed = in_array($title->getNamespace(), $config->get("namespaces")) ? true:false;
-		if ( !$title->isMainPage() && $allowed !== false ) {
+		if ( !$title->isMainPage() && $allowed !== false && $skin->getSkinName() == 'medik' ) {
 			// show icon
 			$page_id = $out->getWikiPage()->getId();
 			if( !empty( $page_id ) ) {

@@ -9,6 +9,7 @@ Mediawiki extension.
     * User can send messages to wiki sysops.
 	* User can see and change article's rating.
 * Special page available only for sysops, can show the list and uncheck the corrected articles
+* Feedback windows available only for "Medik" skin (can be changed at the beginning of FeedbackUsHooks:activateFB()).
 
 ## SpecialPage
 
