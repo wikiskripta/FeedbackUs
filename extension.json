@@ -75,9 +75,9 @@
 			"value": "info@wikiskripta.eu",
 			"description": "Email address checked by OTRS."
 		},
-		"articleScoresItemsCount": {
+		"articleScoresDefaultItemsCount": {
 			"value": 100,
-			"description": "Pager. Number of scored articles showed at Special:FeedbackUs."
+			"description": "Number of scored articles showed at Special:ArticleScores."
 		}
 	},
 	"manifest_version": 2

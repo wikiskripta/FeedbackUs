@@ -4,23 +4,33 @@ Mediawiki extension.
 
 ## Description
 
-* Version 1.2
+* Version 2.0
 * Extension gives feedback regarding the articles
     * User can send messages to wiki sysops.
 	* User can see and change article's rating.
-* Special page available only for sysops, can show the list and uncheck the corrected articles
-* Feedback windows available only for "Medik" skin (can be changed at the beginning of FeedbackUsHooks:activateFB()).
+* Special pages with feedback.
+* Feedback popup available only for "Medik" skin (can be changed at the beginning of FeedbackUsHooks:activateFB()).
 
 ## SpecialPage
 
-SpecialPage:FeedbackUs diplays commented articles.
-SpecialPage:ArticleScores diplays a chart of reviewed articles
+### SpecialPage:FeedbackUs
+
+* List of commented articles.
+* Only sysops can access.
+* User can mark an item as "solved".
+* Solved items contain username and timestamp.
+
+### SpecialPage:ArticleScores
+
+* Chart of reviewed articles
+* Options: rating, number of article's reviewers (with given rating)
 
 ## Installation
 
 * Make sure you have MediaWiki 1.29+ installed.
+* "Medik" skin selected.
 * Download and place the extension to your /extensions/ folder.
-* Add the following code to your LocalSettings.php: 
+* Add the following code to your LocalSettings.php:
 
 ``` php
 wfLoadExtension( 'FeedbackUs' );
@@ -43,8 +53,8 @@ __"sendToOtrs":__
 * If set (=1), comments are sent to email address in __"otrsAddress"__.
 __"otrsAddress":__
 * OTRS email address
-__"articleScoresItemsCount":__
-* Pager. Number of scored articles showed at Special:FeedbackUs.
+__"articleScoresDefaultItemsCount":__
+* Number of scored articles showed at Special:ArticleScore.
 
 ## Internationalization
 
@@ -62,6 +72,23 @@ This extension is available in English and Czech language. For other languages, 
 
 * Bootstrap modals
 * Magic box removed
+
+### 2.0
+
+* Checkboxes removed
+* Stars' rating instead of dropdown.
+* Direct link in the OTRS message. Feedback item has a detail page now.
+* Message can be edited at _Mediawiki:feedbackus-message-subject_ and Mediawiki:feedbackus-message-body.
+
+#### FeedbackUs special page
+
+* User can mark an item as "solved".
+* "Solving" an item triggers sending info to OTRS.
+* Solved items contain username and timestamp.
+
+#### ArticleScores special page
+
+* Options: rating, number of article's reviewers (with given rating), number of articles displayed
 
 ## Authors and license
 
