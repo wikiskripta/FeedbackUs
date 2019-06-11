@@ -69,7 +69,7 @@
 		},
 		"sendToOtrs": {
 			"value": false,
-			"description": "If true, comments from magic box with given sender email are sent to email address in otrsAddress."
+			"description": "If true, comments are sent to email address in otrsAddress."
 		},
 		"otrsAddress": {
 			"value": "info@wikiskripta.eu",

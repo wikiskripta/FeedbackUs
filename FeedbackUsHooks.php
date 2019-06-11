@@ -32,7 +32,7 @@ class FeedbackUsHooks {
 				if( empty( $rating ) ) $rating = '00';
 
 				// add modal (hidden)
-				$modal = "<div id='fbuModal' class='modal fade bd-example-modal-md' tabindex='-1' role='dialog' aria-labelledby='feedbackModalLabel' aria-hidden='true' ";
+				$modal = "<div id='fbuModal' class='modal fade' tabindex='-1' role='dialog' aria-hidden='true' ";
 				$modal .= "data-rating='$rating' data-revid='" . $out->getRevisionId() . "' data-pageid='" . $page_id . "'>\n";
 				$modal .= "<div class='modal-dialog modal-md'>\n";		
 				$modal .= "<div class='modal-content'>\n";
