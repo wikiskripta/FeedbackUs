@@ -17,7 +17,6 @@ class FeedbackUs extends SpecialPage {
 		parent::__construct( 'FeedbackUs', 'feedbackright' );	// "editinterface" restrict to sysops
 	}
 
-
 	function execute($param) {
 
 		global $wgReadOnly;
@@ -26,22 +25,17 @@ class FeedbackUs extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$config = $this->getConfig();
+		//$this->checkPermissions();
 
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '/' );
-				
-		$page_id = $request->getInt( 'page_id' );
+
 		$dbr = wfGetDB( DB_SLAVE );
 		$dbw = wfGetDB( DB_MASTER );
-		
-		// FU
-		$write = $request->getInt( 'write' );
-		$comment = $request->getVal( 'comment' );
-		$repaired = $request->getText( 'repaired' );  // feedback had been processed
-		$feedback_id = $request->getText( 'feedback_id' );
-		// AS
-		$rev_id = $request->getInt( 'rev_id' );
-		
+
+		$page_id = $request->getInt( 'page_id' );
+		$action = $request->getInt( 'action' );
+
 		// is the article's namespace allowed?
 		if ( $page_id  ) {
 			$res = $dbr->selectRow(
@@ -49,205 +43,244 @@ class FeedbackUs extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $page_id )
 			);
-			$namespace_allowed = in_array($res->page_namespace, $config->get("namespaces")) ? true:false;
+			if( !in_array($res->page_namespace, $config->get("namespaces")) {
+				$out->disable();
+				header( 'Content-type: application/text; charset=utf-8' );
+				echo "Error: forbidden namespace";
+				exit;	
+			}
 		}
 
+		/*
+		$comment = $request->getVal( 'comment' );
+		$rev_id = $request->getInt( 'rev_id' );
+		*/
 
-		if ( $write==1 && $page_id>0 && $namespace_allowed && $rev_id && empty($repaired) ) {
-			# ###################################
-			# SEND FEEDBACK
-			####################################
+		$ret = '';
+		switch($action) {
 
-			// pokud je wiki v režimu $wgReadOnly, žádný zápis do DB
-			if( !empty( $wgReadOnly ) ) {
-				$out->disable();
-				echo 'Wiki je v režimu jen pro čtení (readonly mode)';
-				return true;
-			}
-
-			$email = $request->getVal( 'email' );
-			if( empty ( $email ) || !preg_match( "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email ) ) {
-				$email = '';
-			}
-			
-			$score = $request->getVal( 'score' );
-			if( empty ( $score ) || !preg_match( "/^[0-5]$/", $score ) ) {
-				$score = 0;
-			}
-			
+			/****************************
+			 * insert comment (frontend)
+			 ****************************/
+			case 'insertcomment':
 			$comment = $request->getVal( 'comment' );
-			if( empty ( $comment ) ) {
-				$comment = '';
-			}
-			$options = '';
-			$options = $request->getVal( 'options' );
-	
+			$email = $request->getVal( 'email' );
+			if( empty ( $email ) || !preg_match( "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email ) ) $email = '';
+			$rev_id = $request->getInt( 'rev_id' );
+			if( !empty($comment) && !empty($rev_id) && !empty($page_id) ) {
 
-			$ret = 'ok';
-			if( $options || $comment ) {
-				// insert new feedback
-				
+				// No DB writes in readonly
+				if( !empty( $wgReadOnly ) ) {
+					$ret = 'Error: readonly mode';
+					break;
+				}
+
+				$score = $request->getVal( 'score' );
+				if( empty ( $score ) || !preg_match( "/^[0-5]$/", $score ) ) {
+					$score = 0;
+				}
+
 				$res = $dbw->insert(
 					'feedbackus',
 					array(
 						'page_id' => $page_id,
-						'comment' => $options . '$' . $comment,
+						'rev_id' => $rev_id,
+						'comment' => $comment,
 						'email' => $email
 					)
 				);
 				
-				if ( !$res ) {
-					$ret = 'err';
+				if ( !$res ) { 
+					$ret = 'Error: DB error';
+					break;
 				}
 
-				if( $config->get("sendToOtrs") ) {
-					// pošli zprávu do OTRS
+				if( $config->get("otrs") ) {
+					// send comment to OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
 					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-					$opArr = $this->getOptionsText( $options );
-					$opts = '';
-					foreach( $opArr as $o ) $opts .= $o . PHP_EOL;
-					$body = $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL . $opts;
+					$body = $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL . PHP_EOL . $comment;
 					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
-						$ret = 'err';
+						$ret = 'Error: sending mail';
 					}
 				}
-			}
-			
 
-			####################################
-			# rate an article
-			####################################
-			if( $ret == 'ok' && $score>0 ) {
-				$ip = $_SERVER['REMOTE_ADDR'];
-	
-				// Is there a row for this article in articlescores_sum?
-				// If not, insert new empty record.
-				$res = $dbr->selectRow(
+			}
+			else $ret = 'Error: insert comment';
+			break;
+
+			/****************************
+			 * save article score (frontend)
+			 ****************************/
+			case 'insertrating':
+			// No DB writes in readonly
+			if( !empty( $wgReadOnly ) ) {
+				$ret = 'Error: readonly mode';
+				break;
+			}
+			$score = $request->getVal( 'score' );
+			if( empty ( $score ) || !preg_match( "/^[0-5]$/", $score ) ) {
+				$ret = "Error: no score set";
+				break;
+			}
+			$ip = $_SERVER['REMOTE_ADDR'];
+
+			// Is there a row for this article in articlescores_sum?
+			// If not, insert new empty record.
+			$res = $dbr->selectRow(
+				'articlescores_sum',
+				array('page_id'),
+				array('page_id' => $page_id )
+			);
+			if ( !$res ) {
+				$res2 = $dbw->insert(
 					'articlescores_sum',
-					array('page_id'),
 					array('page_id' => $page_id )
 				);
-				if ( !$res ) {
-					$res2 = $dbw->insert(
-						'articlescores_sum',
-						array('page_id' => $page_id )
-					);
-				}
-	
-				// In case this revision has been rated before - update it.
-				// Otherwise insert new record to articlescores table.
-				$ok = true;
-				$res = $dbr->selectRow(
-					'articlescores',
-					array( 'id', 'day_ips', 'last_inserted', 'scoreSum', 'usersCount' ),
-					array( 'rev_page' => $page_id, 'rev_id' => $rev_id )
-				);
-	
-				$dtnow = new DateTime();
-				$now = $dtnow->format( 'YmdHis' );
-						
-				if ( $res ) {
-	
-					$dayips = $res->day_ips;
-					$dbdate = new DateTime( $res->last_inserted );
-	
-					// dayips reset if recent day can't be found in db
-					$newdayips = "$dayips,$ip";
-					if ( $dtnow->format('Ymd') != $dbdate->format( 'Ymd' ) ) {
-						
-						$res2 = $dbw->update(
-							'articlescores',
-							array( 'day_ips' => '', 'last_inserted' => $now ),
-							array( 'rev_page' => $page_id, 'rev_id' => $rev_id )
-						);
-						
-						$dayips = '';
-						$newdayips = $ip;
-					}
-		
-					// is recent IP address allowed to score today?
-					if ( strpos( ',' . $dayips . ',', ',' . $ip . ',' ) === false ||
-							$dtnow->format( 'Ymd' ) != $dbdate->format( 'Ymd' ) )
-					{
-						// update rating (condition one ip per revision per day)
-						
-						$res2 = $dbw->update(
-							'articlescores',
-							array(
-								'scoreSum' => $res->scoreSum + $score,
-								'usersCount' => $res->usersCount + 1,
-								'day_ips' => $newdayips,
-								'last_inserted' => $now ),
-							array('id' => $res->id )
-						);
-						
-						if ( !$res2 ) {
-							$ok = false;
-							$ret = 'articlescores-error-update';
-						}
-					}
-					else {
-						$ok = false;
-						$ret = 'articlescores-dayips-not-today';
-					}
-				}
-				else {
-					// insert new revision's rating
+			}
+
+			// In case this revision has been rated before - update it.
+			// Otherwise insert new record to articlescores table.
+			$res = $dbr->selectRow(
+				'articlescores',
+				array( 'id', 'day_ips', 'last_inserted', 'scoreSum', 'usersCount' ),
+				array( 'rev_page' => $page_id, 'rev_id' => $rev_id )
+			);
+
+			$dtnow = new DateTime();
+			$now = $dtnow->format( 'YmdHis' );
 					
-					$res2 = $dbw->insert(
+			if ( $res ) {
+
+				$dayips = $res->day_ips;
+				$dbdate = new DateTime( $res->last_inserted );
+
+				// dayips reset if recent day can't be found in db
+				$newdayips = "$dayips,$ip";
+				if ( $dtnow->format('Ymd') != $dbdate->format( 'Ymd' ) ) {
+					
+					$res2 = $dbw->update(
+						'articlescores',
+						array( 'day_ips' => '', 'last_inserted' => $now ),
+						array( 'rev_page' => $page_id, 'rev_id' => $rev_id )
+					);
+					
+					$dayips = '';
+					$newdayips = $ip;
+				}
+	
+				// is recent IP address allowed to score today?
+				if ( strpos( ',' . $dayips . ',', ',' . $ip . ',' ) === false ||
+						$dtnow->format( 'Ymd' ) != $dbdate->format( 'Ymd' ) )
+				{
+					// update rating (condition one ip per revision per day)
+					$res2 = $dbw->update(
 						'articlescores',
 						array(
-							'rev_page' => $page_id,
-							'rev_id' => $rev_id,
-							'scoreSum' => $score,
-							'usersCount' => 1,
-							'day_ips' => $ip,
-							'last_inserted' => $now )
+							'scoreSum' => $res->scoreSum + $score,
+							'usersCount' => $res->usersCount + 1,
+							'day_ips' => $newdayips,
+							'last_inserted' => $now ),
+						array('id' => $res->id )
 					);
 					
 					if ( !$res2 ) {
-						$ok = false;
-						$ret = 'articlescores-error-insert';
+						$ret = 'articlescores-error-update';
+						break;
 					}
-				}				
-				// save new score
-				if ( $ok ) $ret = FeedbackUsHooks::saveScore( $page_id );
-				
+				}
+				else {
+					$ret = 'articlescores-dayips-not-today';
+					break;
+				}
 			}
-			elseif( $ret == 'ok'  ) $ret = 'not-rated';
-							
+			else {
+				// insert new revision's rating
+				$res2 = $dbw->insert(
+					'articlescores',
+					array(
+						'rev_page' => $page_id,
+						'rev_id' => $rev_id,
+						'scoreSum' => $score,
+						'usersCount' => 1,
+						'day_ips' => $ip,
+						'last_inserted' => $now )
+				);
+				if ( !$res2 ) {
+					$ret = 'articlescores-error-insert';
+					break;
+				}
+			}				
+			// save new score
+			$ret = FeedbackUsHooks::saveScore( $page_id );
+			break;
+
+			/****************************
+			 * mark feedback as (un)solved (backend)
+			 ****************************/
+			case 'solvefeedback':
+			// No DB writes in readonly
+			if( !empty( $wgReadOnly ) ) {
+				$ret = 'Error: readonly mode';
+				break;
+			}
+			$this->checkPermissions();
+
+			$solved = $request->getInt( 'solved' );  // feedback had been processed
+			$solvedComment = $request->getVal( 'solvedComment' );
+			$feedback_id = $request->getInt( 'feedback_id' );
+
+			if( !in_array($solved, [0, 1]) || !is_numeric($feedback_id) ) {
+				$ret = 'Error: Wrong input';
+				break;
+			}
+			$this->checkPermissions();
+
+			// update DB
+			if($solved) {
+				$res = $dbw->update(
+					'feedbackus',
+					array( 'solved_user' => $user->getName(), 'solved_timestamp' => 'NOW()', 'solved_comment' => $solvedComment ),
+					array( 'id' => $feedback_id )
+				);
+			}
+			else {
+				$res = $dbw->update(
+					'feedbackus',
+					array( 'solved_user' => '', 'solved_timestamp' => '', 'solved_comment' => '' ),
+					array( 'id' => $feedback_id )
+				);
+			}
+
+			// pager
+			$page = $request->getInt('fuPageNumber',1);
+			if(!$page) $page=1;
+				echo "<script>window.location.href='".$wikiurl . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
+				exit;
+			}
+			break;
+		}
+
+		if(!empty($ret)) {
 			// Display the output
 			$out->disable();
 			header( 'Content-type: application/text; charset=utf-8' );
 			echo $ret;
 			exit;
 		}
-		elseif( $repaired == 1 && !empty($feedback_id) ) {
-			####################################
-			# REMOVE FEEDBACK FROM DB
-			####################################
-			
-			if( empty( $wgReadOnly ) ) {
-				$this->checkPermissions();
-				
-				// remove from DB
-				$res = $dbw->delete(
-					'feedbackus',
-					array( 'id' => $feedback_id )
-				);
-				
-				// pager
-				$page = $request->getInt('fuPageNumber',1);
-				if(!$page) $page=1;
-				echo "<script>window.location.href='".$wikiurl . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
-				exit;
-			}
-		}
 
+
+
+
+
+
+		/****************************
+		 * show comments (backend)
+		 ****************************/
+TODO
 		$this->checkPermissions();
 		$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
-		if( $config->get("sendToOtrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
+		if( $config->get("otrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
 		
 		// prepare output table 
 		$tableheader = "<table class='wikitable'>";
@@ -256,7 +289,8 @@ class FeedbackUs extends SpecialPage {
 		$tableheader .= "<th>Email</th>";
 		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</th><th></th></tr>";
 		$hascontent = false;
-		if( !$request->getInt( 'detail' ) ) {
+
+
 			
 			####################################
 			# SHOW AT SPECIAL PAGE
@@ -265,12 +299,9 @@ class FeedbackUs extends SpecialPage {
 			$page = $request->getInt('fuPageNumber',1);
 			$output = "<br/><br/><form id='fuMenu' name='fuMenu' method='post' action=''>\n";
 			// previous
-			if($page==1) {
-				$prev = 1; 
-			}
-			else {
-				$prev = $page-1;
-			}
+			if($page==1) $prev = 1; 
+			else $prev = $page-1;
+
 			if($page > 1) {
 				$output .= "<input type='button' onclick=";
 				$output .= "\"document.getElementById('fuPageNumber').value=$prev;";
@@ -370,7 +401,7 @@ class FeedbackUs extends SpecialPage {
 			if( $hascontent ) {
 				$out->addHTML( $output );
 			}			
-		}
+		/*
 		else {
 			#########################################################
 			# SHOW DETAILS AT SPECIAL PAGE (all article's comments )
@@ -411,7 +442,7 @@ class FeedbackUs extends SpecialPage {
 				}
 				$output .= "<td>$comm</td>";
 				$output .= "<td>" . $row->email . "</td>";
-				if( $config->get("sendToOtrs") ) $output .= ' (OTRS)';
+				if( $config->get("otrs") ) $output .= ' (OTRS)';
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
 				$output .= "<td>$ts</td>";
@@ -426,9 +457,15 @@ class FeedbackUs extends SpecialPage {
 				$out->addHTML( $output );
 			}
 		}
+		*/
 	}
 	
-	// send email
+
+
+
+	/**
+	 * Send email
+	 */
 	function sendMail( $address, $from, $subject, $body ) {
 		$header = "MIME-Version: 1.0\r\n";
 		$header .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
@@ -440,16 +477,5 @@ class FeedbackUs extends SpecialPage {
 		else return false;
 	}
 	
-	// get options' texts
-	function getOptionsText( $options ) {
-		$arr = explode(  '|', $options );
-		$output = array();
-		$i = 0;
-		foreach( $arr as $o ) {
-			if( $o !='' ) $output[$i] = $this->msg( 'feedbackus-option' . $o )->plain();
-			$i++;
-		}
-		return $output;
-	}
 	
 }

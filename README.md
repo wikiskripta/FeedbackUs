@@ -42,19 +42,7 @@ $wgGroupPermissions['sysop']['feedbackus'] = true;
 
 ## Configuration
 
-Edit config section of _extension.json_:
-__"namespaces":__
-* Numbers of namespaces we want to give this kind of feedback, separated by comma.
-* For example [0,2,12] allows Main, User, Help namespaces.
-* Numbers of built in namespaces can be found at [Manual:Namespace](https://www.mediawiki.org/wiki/Manual:Namespace).
-__"pageCount":__
-* Pager. Default 50 comments on page.
-__"sendToOtrs":__
-* If set (=1), comments are sent to email address in __"otrsAddress"__.
-__"otrsAddress":__
-* OTRS email address
-__"articleScoresDefaultItemsCount":__
-* Number of scored articles showed at Special:ArticleScore.
+Edit config section of _extension.json_.
 
 ## Internationalization
 

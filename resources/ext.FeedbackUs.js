@@ -16,13 +16,24 @@
 		// clear form
 		$('#FeedbackUsEmail').val('');
 		$('#FeedbackUsComment').val('');
-		$('#fbuModal').find(".form-check-input").prop("checked", false);
-		$('#as_sel option:eq(0)').prop('selected', true);
-		$('#fbuModal').find(".alert-success").addClass("d-none");
-		$('#fbuModal').find(".alert-danger").addClass("d-none");
+		$('#fbSuccess').removeClass("d-none").addClass("d-none");
+		$('#fbError').removeClass("d-none").addClass("d-none");
+		$('#asSuccess').removeClass("d-none").addClass("d-none");
+		$('#asError').removeClass("d-none").addClass("d-none");
 	})
 
-	// send form
+
+	// Unlock submit button of #fbuModal form when comment filled
+	$('#FeedbackUsComment').change(function( event ) {
+		if( $(this).val() != '' && $("#modalSendButton").hasClass("disabled")) {
+			$("#modalSendButton").removeClass("disabled");
+		}
+		else if( $(this).val() == '' && !$("#modalSendButton").hasClass("disabled")) {
+			$("#modalSendButton").addClass("disabled");
+		}
+	})
+
+	// Send form
 	$('#fbuModal form').submit(function( event ) {
 		event.preventDefault();
 
@@ -30,65 +41,84 @@
 		var rev_id = $( '#fbuModal' ).data('revid');
 				
 		// send feedback
-		var fuo = '';
-		$( '.fuo' ).each(function () {
-			if( this.checked ) fuo += this.id.substr(3) + "|";
-		});
-		if( fuo != '' ) fuo = fuo.substring(0, fuo.length - 1);
-
 		$.ajax({
 			type: 'POST',
 			url: wikipath + '/index.php?title=Special:FeedbackUs',
 			data: 'page_id=' + page_id + '&comment=' + $( '#FeedbackUsComment' ).val() + '&email=' + $( '#FeedbackUsEmail' ).val() + 
-				'&options=' + fuo + '&write=1&score=' + $("#as_sel").val() + '&rev_id=' + rev_id,
+				'&rev_id=' + rev_id + '&action=insertcomment',
 			dataType: 'text',
 			success: function( server_response ) {
-				if( $.isNumeric(server_response) ) {
-					// update rating
-					$('#fbuModal').find(".alert-success").removeClass("d-none");
-					$('#fbuModal .modal-title>span').text(mw.msg('feedbackus-' + server_response + '-startitle'));
-					var color;
-					switch(server_response) {
-						case '1':
-						color = "red";
-						break;
-					
-						case '2':
-						color = "orange";
-						break;
-					
-						case '3':
-						color = "#4474c9";
-						break;
-			
-						case '4':
-						color = "#558d18";
-						break;
-					
-						case '5':
-						color = "green";
-						break;
-	
-						default:
-						color = "#000000";
-					}
-					$('#fbuModal .modal-header').css("background-color", color);
-					$( '#fbuModal' ).data('rating', server_response);
+				if(server_response == 'ok') {
+					$('#fbSuccess').removeClass("d-none");
+					// hide modal
+					setTimeout(function() {	
+						$('#fbuModal').modal('hide');
+					}, 2000 );
 				}
-				else if( server_response == 'articlescores-dayips-not-today' ) {
-					$('#fbuModal').find(".alert-danger").removeClass("d-none");
+				else {
+					$('#fbError').removeClass("d-none");
+					$('#fbError').html( $('#fbError').html() + ': ' + server_response );
 				}
-				else if(server_response == 'not-rated') {
-					$('#fbuModal').find(".alert-success").removeClass("d-none");
-				}
-				else alert("Neznámá chyba: " + server_response);
-
-				// hide modal
-				setTimeout(function() {	
-					$('#fbuModal').modal('hide'); 
-				}, 2000 );
 			}
-		});		
+		});
 	});
+
+
+	// Handle review bar
+	$( ".asStar" ).click(function() {
+		var rating = $(this).data("rating");
+		$.ajax({
+			type: 'POST',
+			url: wikipath + '/index.php?title=Special:FeedbackUs',
+			data: 'page_id=' + $(this).data("pageid") + '&rev_id=' + $(this).data("revid") + '@score=' + rating + '&action=insertrating',
+			dataType: 'text',
+			success: function( server_response ) {
+				if(server_response == 'ok') {
+					displayRating(rating);
+					$('#asSuccess').removeClass("d-none");
+					// hide alert
+					setTimeout(function() {	
+						$('#asSuccess').addClass("d-none");
+					}, 2000 );
+				}
+				else if(server_response == 'articlescores-dayips-not-today') {
+					$('#asError').removeClass("d-none");
+					// hide alert
+					setTimeout(function() {	
+						$('#asError').addClass("d-none");
+					}, 2000 );
+				}
+				else {
+					$('#fbError').removeClass("d-none");
+					$('#fbError').html( $('#fbError').html() + ': ' + server_response );
+					// hide alert
+					setTimeout(function() {	
+						$('#fbError').addClass("d-none");
+					}, 2000 );
+				}
+			}
+		});
+	});
+	$( ".asStar" ).mouseover(function() {
+		var rating = $(this).data("rating");
+		displayRating(rating);
+	});
+	$( ".ratingBar" ).mouseout(function() {
+		var rating = $( '#fbuModal' ).data('rating');
+		displayRating(rating);
+	});
+
+
+	/**
+	 * Display correct colors of stars' rating
+	 * @param {int} rating: chosen rating
+	 */
+	function displayRating(rating) {
+		$(".ratingBar span").each(function() {
+			var color = "white";
+			if( $(this).data("rating") <= rating ) color = "orange";
+			$(this).find("img").attr("src", window.location.origin + "/extensions/FeedbackUs/resources/img/star_" + color + ".png");
+		});
+	}
 
 }( mediaWiki, jQuery ) );

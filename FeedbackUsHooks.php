@@ -17,6 +17,7 @@ class FeedbackUsHooks {
 	 */
 	public static function activateFB( &$out, &$skin ) {
 		// FeedbackUs only for articles from defined namespace (Main page exluded)
+		global $wgServer;
 		if( !$out->isArticle() ) return true;
 		$title = $out->getTitle();
 		$config = $out->getConfig();
@@ -29,7 +30,7 @@ class FeedbackUsHooks {
 				// register module
 				$out->addModules('ext.FeedbackUs');
 				$rating = FeedbackUsHooks::getRating($out,$skin);
-				if( empty( $rating ) ) $rating = '00';
+				if( empty( $rating ) ) $rating = 0;
 
 				// add modal (hidden)
 				$modal = "<div id='fbuModal' class='modal fade' tabindex='-1' role='dialog' aria-hidden='true' ";
@@ -37,34 +38,16 @@ class FeedbackUsHooks {
 				$modal .= "<div class='modal-dialog modal-md'>\n";		
 				$modal .= "<div class='modal-content'>\n";
 				// modal content
-				$startitle = wfMessage( "feedbackus-$rating-startitle" )->text();
-				switch($rating) {
-					case '1':
-					$color = "red";
-					break;
-				
-					case '2':
-					$color = "orange";
-					break;
-				
-					case '3':
-					$color = "#4474c9";
-					break;
-		
-					case '4':
-					$color = "#558d18";
-					break;
-				
-					case '5':
-					$color = "green";
-					break;
 
-					default:
-					$color = "#000000";
-				}
 				// header - show ratings
-				$modal .= "<div class='modal-header' style='background-color:$color;'>\n";
-				$modal .= "<h4 class='modal-title'>" . wfMessage( 'articlescores-score' )->text() . ": <span>$startitle</span></h4>\n";
+				$modal .= "<div class='modal-header'>\n";
+				$modal .= "<div class='ratingBar'>\n";
+				for($i=1;$i<=5;$i++) {
+					$modal .= "<span data-rating='$i' class='asStar'><img src='$wgServer/extensions/FeedbackUs/resources/img/star_";
+					if($i<=$rating) $modal .= "orange"; else $modal .= "white";
+					$modal .= ".png' alt='score-$i'></span>\n";
+				}
+				$modal .= "</div>\n";
 				$modal .= "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>\n";
 				$modal .= "<span aria-hidden='true'>&times;</span>\n";
         		$modal .= "</button>\n";
@@ -72,50 +55,31 @@ class FeedbackUsHooks {
 				
 				// body
 				$modal .= "<div class='modal-body'>\n<form>\n";
-				
-				// select ratings
-				$modal .= "<div class='form-group'>\n";
-				$modal .= "<select id='as_sel' class='form-control'>\n";
-				for($i=0; $i<6; $i++ ) {
-					$modal .= "<option value='$i' ";
-					if(!$i) $modal .= "disabled selected";
-					$modal .= ">" . wfMessage( "feedbackus-$i-startitle" )->text() . "</option>\n";
-				}
-				$modal .= "</select>\n</div>\n";
-				
-				// legend
-				$modal .= "<div>" . wfMessage( "feedbackus-title" )->text() . "</div>\n";
-				
+						
 				// insert textarea and field for email
 				$modal .= "<div class='form-group'>\n";
-				$modal .= "<textarea id='FeedbackUsComment' class='form-control' placeholder='" . wfMessage( "feedbackus-message-label" )->text() . "'></textarea>\n";
+				$modal .= "<textarea id='FeedbackUsComment' class='form-control' placeholder='" . wfMessage( "feedbackus-message-label" )->text() . "' required></textarea>\n";
 				$modal .= "</div>\n";
 				$modal .= "<div class='form-group'>\n";
 				$modal .= "<input type='email' id='FeedbackUsEmail' class='form-control' placeholder='" . wfMessage( 'feedbackus-email-label' )->text() . "'>\n";
 				$modal .= "</div>\n";
 				
-				// options - checkboxes
-				$modal .= "<div class='mb-2'>" . wfMessage( 'feedbackus-issues' )->text() . "</div>\n";
-				for($i=0; $i<3; $i++) {
-					$modal .= "<div class='form-check'>\n";
-					$modal .= "<input class='form-check-input fuo' type='checkbox' value='1' id='fuo$i'>\n";
-					$modal .= "<label class='form-check-label' for='fuo$i'>\n";
-    				$modal .= wfMessage( "feedbackus-option$i" )->text();
-					$modal .= "</label>\n";
-					$modal .= "</div>\n";
-				}
-
 				// insert send and cancel buttons
-				$modal .= "<button class='btn btn-dark mt-3'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
+				$modal .= "<button id='modalSubmitButton' class='btn btn-dark mt-3 disabled'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
 
 				// alerts
-				$modal .= "<div class='alert alert-success d-none mt-3' role='alert'>\n";
+				$modal .= "<div id='fbSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
 				$modal .= wfMessage( 'feedbackus-thanks' )->text() . "\n";
 				$modal .= "</div>\n";
-				$modal .= "<div class='alert alert-danger d-none mt-3' role='alert'>\n";
+				$modal .= "<div id='fbError' class='alert alert-danger d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'feedbackus-error' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "<div id='asSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'articlescores-success' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "<div id='asError' class='alert alert-danger d-none mt-3' role='alert'>\n";
 				$modal .= wfMessage( 'articlescores-one-per-day' )->text() . "\n";
 				$modal .= "</div>\n";
-
 				$modal .= "</form>\n</div>\n"; // end of body
     			$modal .= "</div>\n</div>\n</div>\n";
 				$out->prependHTML( $modal );
