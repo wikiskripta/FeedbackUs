@@ -10,13 +10,13 @@
 	"feedbackus-specialpage-text": "Tato stránka zobrazuje seznam článků se zpětnou vazbou od návštěvníků.",
 	"feedbackus-link": "Hodnocení článku",
 	"feedbackus-specialpage-timestamp": "Čas",
-
-	"feedbackus-specialpage-repaired-legend": "Odstranit ze seznamu?",
-
+	"feedbackus-specialpage-show-solved": "Zobrazení vyřešených položek",
+	"feedbackus-specialpage-mark-as-solved": "Označit jako vyřešené",
+	"feedbackus-specialpage-mark-as-nonsolved": "Označit jako nevyřešené",
+	"feedbackus-specialpage-solved-by": "Vyřešil",
 	"feedbackus-specialpage-articlename": "Název článku",
 	"feedbackus-specialpage-comments": "Komentáře",
 	"feedbackus-specialpage-reviewcount": "Počet komentářů",
-	"feedbackus-specialpage-repaired": "Odstranit",
 	"feedbackus-specialpage-otrsinfo": "Komentáře jsou posílány i do OTRS.",
 	"feedbackus-send-button": "Odeslat",
 	"feedbackus-cancel-button": "Zrušit",

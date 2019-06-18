@@ -25,16 +25,15 @@ class FeedbackUs extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$config = $this->getConfig();
-		//$this->checkPermissions();
 
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '/' );
-
+		
 		$dbr = wfGetDB( DB_SLAVE );
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page_id = $request->getInt( 'page_id' );
-		$action = $request->getInt( 'action' );
+		$action = $request->getInt( 'action', '' );
 
 		// is the article's namespace allowed?
 		if ( $page_id  ) {
@@ -43,18 +42,13 @@ class FeedbackUs extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $page_id )
 			);
-			if( !in_array($res->page_namespace, $config->get("namespaces")) {
+			if( !in_array($res->page_namespace, $config->get("namespaces"))) {
 				$out->disable();
 				header( 'Content-type: application/text; charset=utf-8' );
 				echo "Error: forbidden namespace";
 				exit;	
 			}
 		}
-
-		/*
-		$comment = $request->getVal( 'comment' );
-		$rev_id = $request->getInt( 'rev_id' );
-		*/
 
 		$ret = '';
 		switch($action) {
@@ -227,7 +221,6 @@ class FeedbackUs extends SpecialPage {
 			$this->checkPermissions();
 
 			$solved = $request->getInt( 'solved' );  // feedback had been processed
-			$solvedComment = $request->getVal( 'solvedComment' );
 			$feedback_id = $request->getInt( 'feedback_id' );
 
 			if( !in_array($solved, [0, 1]) || !is_numeric($feedback_id) ) {
@@ -240,25 +233,29 @@ class FeedbackUs extends SpecialPage {
 			if($solved) {
 				$res = $dbw->update(
 					'feedbackus',
-					array( 'solved_user' => $user->getName(), 'solved_timestamp' => 'NOW()', 'solved_comment' => $solvedComment ),
+					array( 'solved_user' => $user->getName(), 'solved_timestamp' => 'NOW()' ),
 					array( 'id' => $feedback_id )
 				);
 			}
 			else {
 				$res = $dbw->update(
 					'feedbackus',
-					array( 'solved_user' => '', 'solved_timestamp' => '', 'solved_comment' => '' ),
+					array( 'solved_user' => '', 'solved_timestamp' => '' ),
 					array( 'id' => $feedback_id )
 				);
 			}
 
-			// pager
-			$page = $request->getInt('fuPageNumber',1);
-			if(!$page) $page=1;
-				echo "<script>window.location.href='".$wikiurl . "/index.php?title=Special:FeedbackUs&fuPageNumber=$page'</script>";
-				exit;
-			}
+			// refresh page
+			echo "<script>window.location.href='$wikiurl/w/Special:FeedbackUs/$pagerID'</script>";
+			exit;
 			break;
+
+			default:
+			// Get pager ID
+			if ( empty( $param ) || !preg_match( '/^[0-9]*$/', $param ) ) $pagerID = '1';
+			else $pagerID = $param;
+			// Get filter
+			if( preg_match("/-archiv/", $param) ) $filter = '-archive'; else $filter = '';
 		}
 
 		if(!empty($ret)) {
@@ -272,192 +269,114 @@ class FeedbackUs extends SpecialPage {
 
 
 
+		if(!$feedback_id) {
 
+			/****************************
+			 * show comments (backend)
+			 ****************************/
 
-		/****************************
-		 * show comments (backend)
-		 ****************************/
-TODO
-		$this->checkPermissions();
-		$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
-		if( $config->get("otrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
-		
-		// prepare output table 
-		$tableheader = "<table class='wikitable'>";
-		$tableheader .= "<tr><th>" . $this->msg( 'feedbackus-specialpage-articlename' )->text() . "</th>";
-		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-comments' )->text() . "</th>";
-		$tableheader .= "<th>Email</th>";
-		$tableheader .= "<th>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</th><th></th></tr>";
-		$hascontent = false;
+			$this->checkPermissions();
+			$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
+			if( $config->get("otrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
 
+			$output .= "<nav aria-label='pager'>\n";
 
-			
-			####################################
-			# SHOW AT SPECIAL PAGE
-			####################################
 			// pager
-			$page = $request->getInt('fuPageNumber',1);
-			$output = "<br/><br/><form id='fuMenu' name='fuMenu' method='post' action=''>\n";
-			// previous
-			if($page==1) $prev = 1; 
-			else $prev = $page-1;
+			$output .= "<ul class='pagination'>\n";	
 
-			if($page > 1) {
-				$output .= "<input type='button' onclick=";
-				$output .= "\"document.getElementById('fuPageNumber').value=$prev;";
-				$output .= "this.form.submit();\" ";
-				$output .= "value='<&nbsp;' title='";
-				$output .= $this->msg( 'feedbackus-previous' )->plain();
-				$output .= "'/>&nbsp;";
-			}
-			else {
-				$output .= "<input type='button' value='<'/>&nbsp;";
-			}
-			// show the number of comments
+			// previous
+			if($pagerID==1) $prev = 1; 
+			else $prev = $pagerID-1;
+			$output .= "<li class='page-item' ";
+			if($pagerID <= 1) $output .= "disabled";
+			$output .= "><a class='page-link' href='$wikiurl/w/Special:FeedbackUs/$prev$filter'>" . $this->msg( 'feedbackus-previous' )->plain() . "</a></li>\n";
+
+			// pager numbers
+			if($filter) $cond = "comment!='' and solved_username!=''"; else $cond = "comment!=''";
 			$resp = $dbr->select(
 				"feedbackus",
 				array("id"),
-				'comment!=""'
+				$cond
 			);
-			$nm = ceil($resp->numRows()/$config->get("pageCount"));
+
+			if(!$resp->numRows()) return true;
+
+			$nm = ceil($resp->numRows()/$config->get("pageCount")); // number of pages
 			for($i=1;$i<=$nm;$i++){
 				if($i==$page) {
-					$output .= "<input type='button' value='$i&nbsp;' style='color:red'/>";
+					$output .= "<li class='page-item active'><span class='page-link'>$i</span></li>\n";
 				}
 				else {
-					$output .= "<input type='button' ";
-					$output .= "onclick=\"document.getElementById('fuPageNumber')";
-					$output .= ".value=$i;this.form.submit();\" value='$i&nbsp;'/>";
+					$output .= "<li class='page-item'><a class='page-link' href='$wikiurl/w/Special:FeedbackUs/$i$filter'>$i</a></li>\n";
 				}
 			}
+
 			// next
-			if($page<$nm) {
-				$next = $page+1; 
-			}
-			else {
-				$next = $nm;
-			}
-			if($page < $nm) {
-				$output .= "&nbsp;<input type='button' ";
-				$output .= "onclick=\"document.getElementById('fuPageNumber')";
-				$output .= ".value=$next;this.form.submit();\" ";
-				$output .= "value='>' title='".$this->msg( 'feedbackus-next' )->plain()."'/>";
-			}
-			else {
-				$output .= "&nbsp;<input type='button' value='>'/>";
-			}
-			$output .= "<input id='fuPageNumber' name='fuPageNumber' ";
-			$output .= "type='hidden' value='1'/>";
-			$output .= "</form><br/>\n";
+			if($pagerID < $nm) $next = $pagerID + 1; 
+			else $next = $nm;
+			$output .= "<li class='page-item' ";
+			if($pagerID >= $nm) $output .= "disabled";
+			$output .= "><a class='page-link' href='$wikiurl/w/Special:FeedbackUs/$next$filter'>" . $this->msg( 'feedbackus-next' )->plain() . "</a></li>\n";
+
+			$output .= "</ul>\n</nav>\n</form>\n";
 			$out->addHTML( $output );
-			
-			
+
+			// filter
+			$output .= "<div class='custom-control custom-switch'>\n";
+			$output .= "<input type='checkbox' class='custom-control-input' id='solvedSwitch'>\n";
+			$output .= "<label class='custom-control-label' for='solvedSwitch'>" . $this->msg( 'feedbackus-specialpage-show-solved' )->text() . "</label>\n";
+			$output .= "</div>\n";
+
 			// prepare output table 
-			$output = $tableheader;
-						
+			$output = "<div class='row no-gutters font-weight-bold mb-4'>\n";
+			$output .= "<div class='col'>" . $this->msg( 'feedbackus-specialpage-articlename' )->text() . "</div>\n";
+			$output .= "<div class='col'>" . $this->msg( 'feedbackus-specialpage-comments' )->text() . "</div>\n";
+			$output .= "<div class='col'>Email</div>\n";
+			$output .= "<div class='col'>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</div>\n<div class='col'></div>\n";
+			$output .= "</div>\n";
+
 			// show results
 			$res = $dbr->select(
 				'feedbackus',
-				array( 'page_id', 'comment', 'timestamp', 'email', 'id' ),
-				'comment!=""',
+				array( 'page_id', 'comment', 'timestamp', 'email', 'id', 'solved_username', 'solved_timestamp' ),
+				$cond,
 				'__METHOD__',
 				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => $config->get("pageCount"), "OFFSET" => (($page-1)*$config->get("pageCount")) )
 			);
 			foreach ( $res as $row ) {
 				if( $row->page_id == 0 ) continue;
 				if( !($article = Article::newFromId( $row->page_id )) ) continue;
-				$output .= "<tr style='vertical-align:top'>";
+				$output .= "<div class='row no-gutters mb-4'>\n";
 				$title = $article->getTitle();
-				$output .= "<td><a href='". $wikiurl . "/index.php?title=Special:FeedbackUs&page_id=" . $row->page_id . "&detail=1'>" . preg_replace('/_/', ' ', $title->getPrefixedDBkey() ) . "</a> ";
-				$output .= "<a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>&#8921</a></td>";
-
-				$crr = explode( '$', $row->comment, 2 );
-				if( sizeof( $crr ) > 1 ) {
-					$opts = $this->getOptionsText( $crr[0] );
-					$comm = '';
-					if(sizeof($opts)>0) {
-						$comm .= '<ul>';
-						foreach( $opts as $o ) {
-							$comm .= "<li>$o</li>";
-						}
-						$comm .= '</ul>';
-					}
-					$comm .= htmlspecialchars( $crr[1], ENT_QUOTES );
-				}
-				else {
-					$comm = htmlspecialchars( $row->comment, ENT_QUOTES );
-				}
-				$output .= "<td>$comm</td>";
-				$output .= "<td>" . $row->email . "</td>";
+				$output .= "<div class='col'>\n";
+				$output .= "<a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a><br>";
+				$output .= "<a href='$wikiurl/w/Special:FeedbackUs?page_id=" . $row->page_id . "' target='_blank'>detail</a>";
+				$output .= "</div>\n";
+				$output .= "<div class='col'>" . htmlspecialchars( $row->comment, ENT_QUOTES ) . "</div>\n";
+				$output .= "<div class='col'>" . $row->email . "</div>\n";
 				$ts = substr( $row->timestamp, 0, 10 );
 				if( $ts == '0000-00-00' ) $ts = '';
-				$output .= "<td>$ts</td>";
-				$hascontent = true;
-				$output .= "<td><a href='".$wikiurl."/index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
-				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
-				$output .= "</tr>";
-			}
-			$output .= "</table>";
-			if( $hascontent ) {
-				$out->addHTML( $output );
-			}			
-		/*
-		else {
-			#########################################################
-			# SHOW DETAILS AT SPECIAL PAGE (all article's comments )
-			#########################################################
-			// prepare output table 
-			$output = "<br/><br/><input type='button' onclick=\"history.back();return false;\" value='<<'/>".$tableheader;
-						
-			// pager
-			$page = $request->getInt('fuPageNumber',1);
-						
-			// show results
-			$res = $dbr->select(
-				'feedbackus',
-				array( 'comment', 'timestamp', 'email', 'id' ),
-				array( 'page_id' => $page_id ),
-				'__METHOD__',
-				array( 'ORDER BY' => 'timestamp DESC' )
-			);
-			foreach ( $res as $row ) {
-				if( $page_id == 0 ) continue;
-				if( !($article = Article::newFromId( $page_id )) ) continue;
-				$output .= "<tr style='vertical-align:top'>";
-				$title = $article->getTitle();
-				$output .= "<td><a href='". $wikiurl . "/index.php?title=" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>";
-
-				$crr = explode( '$', $row->comment, 2 );
-				if( sizeof( $crr ) > 1 ) {
-					$opts = $this->getOptionsText( $crr[0] );
-					$comm = '<ul>';
-					foreach( $opts as $o ) {
-						$comm .= "<li>$o</li>";
-					}
-					$comm .= '</ul>';
-					$comm .= htmlspecialchars( $crr[1], ENT_QUOTES );
+				$output .= "<div class='col'>$ts</div>\n";
+				$output .= "<div class='col'>\n";
+				if($filter) {
+					$output .= $this->msg( 'feedbackus-specialpage-solved-by' )->text() . ": <a href='$wikiurl/w/User:" . $row->solved_user . "'>" . $row->solved_user . " (" . substr( $row->solved_timestamp, 0, 10 ) . ")</a>";
+					$output .= "<a href='$wikiurl/w/Special:FeedbackUs?feedback_id=" . $row->id . "&solved=0'>" . $this->msg( 'feedbackus-specialpage-mark-as-nonsolved' )->text() . "</a>";
 				}
 				else {
-					$comm = htmlspecialchars( $row->comment, ENT_QUOTES );;
+					$output .= "<a href='$wikiurl/w/Special:FeedbackUs?feedback_id=" . $row->id . "&solved=1'>" . $this->msg( 'feedbackus-specialpage-mark-as-solved' )->text() . "</a>";
 				}
-				$output .= "<td>$comm</td>";
-				$output .= "<td>" . $row->email . "</td>";
-				if( $config->get("otrs") ) $output .= ' (OTRS)';
-				$ts = substr( $row->timestamp, 0, 10 );
-				if( $ts == '0000-00-00' ) $ts = '';
-				$output .= "<td>$ts</td>";
-				$output .= "<td><a href='".$wikiurl."/index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
-				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
-				$output .= "</tr>";
-				$hascontent = true;			
-			}
-			$output .= "</table>";
-			$output .= "<input type='button' onclick=\"history.back();return false;\" value='<<'/>";
-			if( $hascontent ) {
-				$out->addHTML( $output );
+				$output .= "</div>\n";
+				$output .= "</div>\n";
 			}
 		}
-		*/
+		else {
+			/****************************
+			 * show comment's details (backend)
+			 ****************************/
+			TODO
+
+		}
+		$out->addHTML( $output );
 	}
 	
 
