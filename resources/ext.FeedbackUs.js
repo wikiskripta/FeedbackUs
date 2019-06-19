@@ -108,6 +108,24 @@
 		displayRating(rating);
 	});
 
+	// Add filter to link
+	$( ".pagerItem" ).click(function(e) {
+		e.preventDefault();
+		if( $("#solvedSwitch").is(":checked") ) {
+			var newhref = $(this).href().replace("archive", "") + "archive";
+			window.location.href = newhref;
+			exit;
+		}
+	});
+
+	// solvedSwitch on change
+	$('#solvedSwith').change(function() {
+        if($(this).is(":checked")) {
+			window.location.href = window.location.origin + "/w/Special:FeedbackUs/1-archive";
+        }
+		else window.location.href = window.location.origin + "/w/Special:FeedbackUs/1";
+    });
+
 
 	/**
 	 * Display correct colors of stars' rating

@@ -27,87 +27,101 @@ class ArticleScores extends SpecialPage {
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );
 						
-		####################################
-		# show best ratings
-		####################################
-
-		// defaults
-		if ( empty( $param ) || !preg_match( '/^best|worst|star[1-5]$/', $param ) ) {
-			$param = 'best';
-		}
-
-		switch( $param ){
-			case 'best':
-			$res = $dbr->select(
-				'articlescores_sum',
-				array( 'page_id', 'score', 'usersCount' ),
-				'',
-				'__METHOD__',
-				array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresItemsCount") )
-			);
-			$title = $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-best' )->text();
-			break;
-
-			case 'worst':
-			$res = $dbr->select(
-				'articlescores_sum',
-				array( 'page_id', 'score', 'usersCount' ),
-				'',
-				'__METHOD__',
-				array( 'ORDER BY' => 'score', 'LIMIT' => $config->get("articleScoresItemsCount") )
-			);
-			$title = $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-worst' )->text();
-			break;
-
-			default:
-			$res = $dbr->select(
-				'articlescores_sum',
-				array( 'page_id', 'score', 'usersCount' ),
-				array( 'stars' => $param[4] ),
-				'__METHOD__',
-				array( 'ORDER BY' => 'score DESC', 'LIMIT' => $config->get("articleScoresItemsCount") )
-			);
-			$title = $this->msg( 'articlescores-score' )->text() . ' ' . $param[4];
-			break;
-		}
-
-		$out->mBodytext .= "<h1>$title</h1>";
+		$url = $wikiurl . '/w/Special:ArticleScores';
+		$out->mBodytext .= "<h1>" . $this->msg( 'articlescores-score' )->text() . "</h1>";
 		$info = str_replace( '#ITEMS', $config->get("articleScoresItemsCount"), $this->msg( 'articlescores-sp-info' )->text() );
-		$out->mBodytext .= "$info<br/><br/>";
+		$out->mBodytext .= "<p>$info</p>";
 
+		/* Controls */
 		$output = "<form id='ascoresMenu' name='ascoresMenu' method='get' action=''>\n";
 
-		// get url of the extension
-		$url = $wikiurl . '/index.php?title=Special:ArticleScores';
+		$output .= "<div class='row no-gutters mb-4'>\n";
 
-		$output .= "<select name='ascoresDDmenu.' onchange='location.href=\"$url/\" +";
-		$output .= "this.options[this.selectedIndex].value'>\n";
-		$output .= "<option value='best' ";
-		if ( $param=='best' ) {
-			$output .= "selected='selected'";
-		}
-		$output .= '>' . $config->get("articleScoresItemsCount") . ' '. $this->msg( 'articlescores-best' )->text() . "</option>\n";
-		$output .= "<option value='worst' ";
-		if ( $param=='worst' ) {
-			$output .= "selected='selected'";
-		}
-		$output .= '>'. $config->get("articleScoresItemsCount") . ' '.$this->msg('articlescores-worst')->text()."</option>\n";
-		for ( $i=1; $i<6; $i++ ) {
-			$output .= "<option value='star$i' ";
-			if ( $param == "star$i" ) {
-				$output .= "selected='selected'";
-			}
-			$output .= '>' . $this->msg( 'articlescores-score' )->text() . " $i</option>\n";
+		// rating
+		$output .= "<div class='col'>\n";
+		$output .= "<div class='form-group'>\n";
+    	$output .= "<label for='filterRating'>" . $this->msg( 'articlescores-rating' )->text() . "</label>\n";
+		$output .= "<select name='filterRating' class='form-control'>\n";
+		$filterRating = $request->getInt( 'filterRating', 5 );
+		for($i=5;$i>0;$i--) {
+			$output .= "<option value='$i' ";
+			if($filterRating == $i) echo  "selected";
+			$output .= ">$</option>\n";
 		}
 		$output .= "</select>\n";
-		$output .= "</form>\n";
-		$out->mBodytext .= $output . '<br/>';
+  		$output .= "</div>\n";
 
-		// prepare output table 
-		$output = "{| class='wikitable sortable'\n";
-		$output .= '! ' . $this->msg( 'articlescores-page' )->text() . ' !! ';
-		$output .= $this->msg( 'articlescores-score' )->text() . ' !! ';
-		$output .= $this->msg( 'articlescores-ratingsNo' )->text() . "\n";
+		$output .= "</div>\n";
+
+		// number of reviewers
+		$output .= "<div class='col'>\n";
+		$output .= "<div class='form-group'>\n";
+    	$output .= "<label for='filterReviewersFROM'>" . $this->msg( 'articlescores-ratingNo-from' )->text() . "</label>\n";
+		$output .= "<select name='filterReviewersFROM' class='form-control'>\n";
+		if($request->getInt( 'filterReviewersFROM')) $filterReviewersFROM = $request->getInt('filterReviewersFROM');
+		else $filterReviewersFROM = $config->get("articleScoresDefaultReviewersCountFROM");
+		for($i=1;$i<=5;$i++) {
+			$output .= "<option value='$i' ";
+			if($filterReviewersFROM == $i) echo  "selected";
+			$output .= ">$</option>\n";
+		}
+		$output .= "</select>\n";
+		$output .= "</div>\n";
+
+		// number of reviewers TO
+		$output .= "<div class='col'>\n";
+		$output .= "<div class='form-group'>\n";
+    	$output .= "<label for='filterReviewersTO'>" . $this->msg( 'articlescores-ratingNo-to' )->text() . "</label>\n";
+		$output .= "<select name='filterReviewersTO' class='form-control'>\n";
+		if($request->getInt( 'filterReviewersTO')) $filterReviewersTO = $request->getInt('filterReviewersTO');
+		else $filterReviewersTO = $config->get("articleScoresDefaultReviewersCountTO");
+		for($i=1;$i<=5;$i++) {
+			$output .= "<option value='$i' ";
+			if($filterReviewersTO == $i) echo  "selected";
+			$output .= ">$</option>\n";
+		}
+		$output .= "</select>\n";
+		$output .= "</div>\n";
+
+		// number of items displayed
+		$output .= "<div class='col'>\n";
+		$output .= "<div class='form-group'>\n";
+    	$output .= "<label for='filterItemsNo'>" . $this->msg( 'articlescores-rating' )->text() . "</label>\n";
+		$output .= "<select name='filterItemsNo' class='form-control'>\n";
+		if($request->getInt( 'filterItemsNo')) $filterItemsNo = $request->getInt('filterItemsNo');
+		else $filterItemsNo = $config->get("articleScoresDefaultItemsCount");
+		for($i=50;$i<=2000;$i+50) {
+			$output .= "<option value='$i' ";
+			if($filterItemsNo == $i) echo  "selected";
+			$output .= ">$</option>\n";
+		}
+		$output .= "</select>\n";
+		$output .= "</div>\n";
+
+		// submit
+		$output .= "<div class='col'>\n";
+		$output .= "<button type='submit' class='btn btn-primary'>" . $this->msg( 'feedbackussendbutton' )->text() . "</button>\n";
+		$output .= "</div>\n";
+
+		$output .= "</div>\n";
+
+
+		// SHOW LIST
+		$res = $dbr->select(
+			'articlescores_sum',
+			array( 'page_id', 'score', 'usersCount' ),
+			'score>=$filterRating and usersCount>=$filterReviewersFROM and usersCount<=$filterReviewersTO',
+			'__METHOD__',
+			array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresItemsCount") )
+		);
+
+		$output .= "<div class='row no-gutters font-weight-bold mb-4'>\n";
+		$output .= "<div class='col'>" . $this->msg( 'articlescores-page' )->text() . "</div>\n";
+		$output .= "<div class='col'>" . $this->msg( 'articlescores-score' )->text() . "</div>\n";
+		$output .= "<div class='col'>" . $this->msg( 'articlescores-ratingsNo' )->text() . "</div>\n";
+		$output .= "</div>\n";
+
+		$output .= "<div class='row no-gutters font-weight-bold mb-4'>\n";
 		foreach ( $res as $row ) {
 			$res2 = $dbr->selectRow(
 				'page',
@@ -118,14 +132,13 @@ class ArticleScores extends SpecialPage {
 			if( $res2 && $namespace_allowed ) {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
-				$output .= "|-\n";
-				$output .= '|[[' . $title->getPrefixedDBkey() . "]]  || align='center'|";
-				$output .= round( $row->score, 2 ) . ' || ';
-				$output .= "align='center'|" . $row->usersCount . "\n";
+				$output .= "<div class='col'><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></div>\n";
+				$output .= "<div class='col'>" . round( $row->score, 2 ) . "</div>\n";
+				$output .= "<div class='col'>" . $row->usersCount . "</div>\n";
 			}
 		}
-		$output .= "|}\n";
-		$out->addWikiText( $output );
+		$output .= "</div>\n";
+		$out->addHTML( $output );
 	}
 	
 }

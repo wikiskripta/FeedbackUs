@@ -62,12 +62,20 @@
 			"description": "If true, comments are sent to email address in otrsAddress. Also info about closing ticket."
 		},
 		"otrsAddress": {
-			"value": "info@wikiskripta.eu",
+			"value": "josef.martinak@gmail.com",
 			"description": "Email address checked by OTRS."
 		},
 		"articleScoresDefaultItemsCount": {
 			"value": 100,
-			"description": "Number of scored articles showed at Special:ArticleScores."
+			"description": "Default number of scored articles showed at Special:ArticleScores."
+		},
+		"articleScoresDefaultReviewersCountFrom": {
+			"value": 5,
+			"description": "Default number of reviewers - FROM."
+		},
+		"articleScoresDefaultReviewersCountTo": {
+			"value": 50,
+			"description": "Default number of reviewers - TO."
 		}
 	},
 	"manifest_version": 2
