@@ -28,12 +28,12 @@ class FeedbackUs extends SpecialPage {
 
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '/' );
-		
+
 		$dbr = wfGetDB( DB_SLAVE );
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page_id = $request->getInt( 'page_id' );
-		$action = $request->getInt( 'action', '' );
+		$action = $request->getVal( 'action', '' );
 
 		// is the article's namespace allowed?
 		if ( $page_id  ) {
@@ -58,20 +58,16 @@ class FeedbackUs extends SpecialPage {
 			 ****************************/
 			case 'insertcomment':
 			$comment = $request->getVal( 'comment' );
-			$email = $request->getVal( 'email' );
+			$email = $request->getVal( 'email', '' );
 			if( empty ( $email ) || !preg_match( "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $email ) ) $email = '';
 			$rev_id = $request->getInt( 'rev_id' );
+
 			if( !empty($comment) && !empty($rev_id) && !empty($page_id) ) {
 
 				// No DB writes in readonly
 				if( !empty( $wgReadOnly ) ) {
 					$ret = 'Error: readonly mode';
 					break;
-				}
-
-				$score = $request->getVal( 'score' );
-				if( empty ( $score ) || !preg_match( "/^[0-5]$/", $score ) ) {
-					$score = 0;
 				}
 
 				$res = $dbw->insert(
@@ -89,6 +85,7 @@ class FeedbackUs extends SpecialPage {
 					break;
 				}
 
+				$ret = "ok";
 				if( $config->get("otrs") ) {
 					// send comment to OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
@@ -100,7 +97,6 @@ class FeedbackUs extends SpecialPage {
 						$ret = 'Error: sending mail';
 					}
 				}
-
 			}
 			else $ret = 'Error: insert comment';
 			break;
@@ -115,6 +111,7 @@ class FeedbackUs extends SpecialPage {
 				break;
 			}
 			$score = $request->getVal( 'score' );
+			$rev_id = $request->getInt( 'rev_id' );
 			if( empty ( $score ) || !preg_match( "/^[0-5]$/", $score ) ) {
 				$ret = "Error: no score set";
 				break;
@@ -128,6 +125,7 @@ class FeedbackUs extends SpecialPage {
 				array('page_id'),
 				array('page_id' => $page_id )
 			);
+
 			if ( !$res ) {
 				$res2 = $dbw->insert(
 					'articlescores_sum',
@@ -145,7 +143,7 @@ class FeedbackUs extends SpecialPage {
 
 			$dtnow = new DateTime();
 			$now = $dtnow->format( 'YmdHis' );
-					
+
 			if ( $res ) {
 
 				$dayips = $res->day_ips;
@@ -206,7 +204,7 @@ class FeedbackUs extends SpecialPage {
 					$ret = 'articlescores-error-insert';
 					break;
 				}
-			}				
+			}
 			// save new score
 			$ret = FeedbackUsHooks::saveScore( $page_id );
 			break;
@@ -229,7 +227,6 @@ class FeedbackUs extends SpecialPage {
 				$ret = 'Error: Wrong input';
 				break;
 			}
-			$this->checkPermissions();
 
 			// update DB
 			if($solved) {
@@ -269,20 +266,7 @@ class FeedbackUs extends SpecialPage {
 			}
 			exit;
 			break;
-
-			default:
-			// Get pager ID and filter
-			if( $request->getVal( 'pagerid', 0 ) ) $pagerID = $request->getVal( 'pagerid' ); else $pagerID = 1;
-			if( $request->getVal( 'filter' == 'archive' ) ) $filter = '-archive';
-
-			if ( empty( $param ) || !preg_match( '/^[0-9]*(-archive)*$/', $param ) || !isset($pagerID) || !isset($filter) ) {
-				$pagerID = '1';
-				$filter = '';
-			}
-			else {
-				$pagerID = $param.split("-")[0];
-				if( preg_match("/-archive/", $param) || $request->getVal( 'filter' ) == 'archive' ) $filter = '-archive';
-			}
+		
 		}
 
 		if(!empty($ret)) {
@@ -295,21 +279,28 @@ class FeedbackUs extends SpecialPage {
 
 
 
-
 		if(!$page_id) {
 
 			/****************************
 			 * show comments (backend)
 			 ****************************/
-
 			$this->checkPermissions();
+			
+			$filter = '';
+			if ( empty( $param ) || !preg_match( '/^[0-9]*(-archive)*$/', $param ) ) $pagerID = 1;
+			else {
+				$arr = explode("-", $param);
+				$pagerID = $arr[0];
+				if(sizeof($arr) > 1) $filter = $arr[1];
+			}
+
 			$out->mBodytext .= $this->msg( 'feedbackus-specialpage-text' )->text();
 			if( $config->get("otrs") ) $out->mBodytext .= PHP_EOL . $this->msg( 'feedbackus-specialpage-otrsinfo' )->text();
 
 			$output = "<nav aria-label='pager'>\n";
 
 			// pager
-			$output .= "<ul class='pagination'>\n";	
+			$output .= "<ul class='pagination mt-3 ml-0'>\n";	
 
 			// previous
 			if($pagerID==1) $prev = 1; 
@@ -330,7 +321,7 @@ class FeedbackUs extends SpecialPage {
 
 			$nm = ceil($resp->numRows()/$config->get("pageCount")); // number of pages
 			for($i=1;$i<=$nm;$i++){
-				if($i==$page) {
+				if($i==$pagerID) {
 					$output .= "<li class='page-item active'><span class='page-link'>$i</span></li>\n";
 				}
 				else {
@@ -346,7 +337,6 @@ class FeedbackUs extends SpecialPage {
 			$output .= "><a class='page-link' href='$wikiurl/w/Special:FeedbackUs/$next$filter'>" . $this->msg( 'feedbackus-next' )->plain() . "</a></li>\n";
 
 			$output .= "</ul>\n</nav>\n</form>\n";
-			$out->addHTML( $output );
 
 			// filter
 			$output .= "<div class='custom-control custom-switch'>\n";
@@ -368,7 +358,7 @@ class FeedbackUs extends SpecialPage {
 				array( 'page_id', 'comment', 'timestamp', 'email', 'id', 'solved_username', 'solved_timestamp' ),
 				$cond,
 				'__METHOD__',
-				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => $config->get("pageCount"), "OFFSET" => (($page-1)*$config->get("pageCount")) )
+				array( 'ORDER BY' => 'timestamp DESC','LIMIT' => $config->get("pageCount"), "OFFSET" => (($pagerID-1)*$config->get("pageCount")) )
 			);
 			foreach ( $res as $row ) {
 				if( $row->page_id == 0 ) continue;
@@ -395,12 +385,13 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</div>\n";
 				$output .= "</div>\n";
 			}
+			$out->addHTML( $output );
 		}
 		else {
 			/****************************
 			 * show comment's details (backend)
 			 ****************************/
-			
+			/*
 			// get info about page_id
 			$article = Article::newFromId( $page_id );
 			$title = $article->getTitle();
@@ -438,8 +429,9 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</div>\n";
 				$output .= "</div>\n";
 			}
+			*/
 		}
-		$out->addHTML( $output );
+		//$out->addHTML( $output );
 	}
 	
 

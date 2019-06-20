@@ -69,11 +69,11 @@
 			"value": 100,
 			"description": "Default number of scored articles showed at Special:ArticleScores."
 		},
-		"articleScoresDefaultReviewersCountFrom": {
+		"articleScoresDefaultReviewersCountFROM": {
 			"value": 5,
 			"description": "Default number of reviewers - FROM."
 		},
-		"articleScoresDefaultReviewersCountTo": {
+		"articleScoresDefaultReviewersCountTO": {
 			"value": 50,
 			"description": "Default number of reviewers - TO."
 		}

@@ -12,7 +12,7 @@
 	// Add feedback icon 
 	$("#firstHeading").append('<div id="ca-feedback" data-toggle="modal" data-target="#fbuModal" class="noprint mb-2"><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></div>');
 
-	$('#fbuModal').on('hide.bs.modal', function (e) { // or hide
+	$('#fbuModal').on('hide.bs.modal', function (e) {
 		// clear form
 		$('#FeedbackUsEmail').val('');
 		$('#FeedbackUsComment').val('');
@@ -23,6 +23,7 @@
 	})
 
 
+	/*
 	// Unlock submit button of #fbuModal form when comment filled
 	$('#FeedbackUsComment').change(function( event ) {
 		if( $(this).val() != '' && $("#modalSendButton").hasClass("disabled")) {
@@ -32,6 +33,7 @@
 			$("#modalSendButton").addClass("disabled");
 		}
 	})
+	*/
 
 	// Send form
 	$('#fbuModal form').submit(function( event ) {
@@ -41,12 +43,13 @@
 		var rev_id = $( '#fbuModal' ).data('revid');
 				
 		// send feedback
+		var data = {'page_id': page_id, 'comment': $( '#FeedbackUsComment' ).val(), 'email': $( '#FeedbackUsEmail' ).val(), 'rev_id': rev_id, 'action': 'insertcomment'};
 		$.ajax({
 			type: 'POST',
 			url: wikipath + '/index.php?title=Special:FeedbackUs',
-			data: 'page_id=' + page_id + '&comment=' + $( '#FeedbackUsComment' ).val() + '&email=' + $( '#FeedbackUsEmail' ).val() + 
-				'&rev_id=' + rev_id + '&action=insertcomment',
+			data: data,
 			dataType: 'text',
+			contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 			success: function( server_response ) {
 				if(server_response == 'ok') {
 					$('#fbSuccess').removeClass("d-none");
@@ -57,7 +60,11 @@
 				}
 				else {
 					$('#fbError').removeClass("d-none");
-					$('#fbError').html( $('#fbError').html() + ': ' + server_response );
+					$('#fbError').html( server_response );
+					// hide alert
+					setTimeout(function() {	
+						$('#fbError').addClass("d-none");
+					}, 2000 );
 				}
 			}
 		});
@@ -67,14 +74,16 @@
 	// Handle review bar
 	$( ".asStar" ).click(function() {
 		var rating = $(this).data("rating");
+		var data = {"page_id": $("#fbuModal").data("pageid"), "rev_id": $("#fbuModal").data("revid"), "score": rating, "action": "insertrating"};
 		$.ajax({
 			type: 'POST',
 			url: wikipath + '/index.php?title=Special:FeedbackUs',
-			data: 'page_id=' + $(this).data("pageid") + '&rev_id=' + $(this).data("revid") + '@score=' + rating + '&action=insertrating',
+			data: data,
 			dataType: 'text',
+			contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 			success: function( server_response ) {
-				if(server_response == 'ok') {
-					displayRating(rating);
+				if( server_response.match(/^[0-9]+$/) != null ) {
+					displayRating(server_response);
 					$('#asSuccess').removeClass("d-none");
 					// hide alert
 					setTimeout(function() {	
@@ -90,7 +99,7 @@
 				}
 				else {
 					$('#fbError').removeClass("d-none");
-					$('#fbError').html( $('#fbError').html() + ': ' + server_response );
+					$('#fbError').html( server_response );
 					// hide alert
 					setTimeout(function() {	
 						$('#fbError').addClass("d-none");

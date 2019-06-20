@@ -65,15 +65,13 @@ class FeedbackUsHooks {
 				$modal .= "</div>\n";
 				
 				// insert send and cancel buttons
-				$modal .= "<button id='modalSubmitButton' class='btn btn-dark mt-3 disabled'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
+				$modal .= "<button id='modalSubmitButton' class='btn btn-primary mt-3'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
 
 				// alerts
 				$modal .= "<div id='fbSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
 				$modal .= wfMessage( 'feedbackus-thanks' )->text() . "\n";
 				$modal .= "</div>\n";
-				$modal .= "<div id='fbError' class='alert alert-danger d-none mt-3' role='alert'>\n";
-				$modal .= wfMessage( 'feedbackus-error' )->text() . "\n";
-				$modal .= "</div>\n";
+				$modal .= "<div id='fbError' class='alert alert-danger d-none mt-3' role='alert'></div>\n";
 				$modal .= "<div id='asSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
 				$modal .= wfMessage( 'articlescores-success' )->text() . "\n";
 				$modal .= "</div>\n";
