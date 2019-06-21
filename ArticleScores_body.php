@@ -101,13 +101,13 @@ class ArticleScores extends SpecialPage {
 			array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresDefaultItemsCount") )
 		);
 
-		$output .= "<div class='row no-gutters font-weight-bold mb-4 mt-5'>\n";
-		$output .= "<div class='col-md-2'>" . $this->msg( 'articlescores-page' )->text() . "</div>\n";
-		$output .= "<div class='col-md-2'>" . $this->msg( 'articlescores-score' )->text() . "</div>\n";
-		$output .= "<div class='col-md-2'>" . $this->msg( 'articlescores-ratingsNo' )->text() . "</div>\n";
-		$output .= "</div>\n";
+		$output .= "<table class='table table-striped mt-4'>\n<thead>\n<tr>\n";
+		$output .= "<th>" . $this->msg( 'articlescores-page' )->text() . "</th>\n";
+		$output .= "<th>" . $this->msg( 'articlescores-score' )->text() . "</th>\n";
+		$output .= "<th>" . $this->msg( 'articlescores-ratingsNo' )->text() . "</th>\n";
+		$output .= "</tr>\n</thead>\n";
 
-		$output .= "<div class='row no-gutters font-weight-bold mb-4'>\n";
+		$output .= "<tbody>\n";
 		foreach ( $res as $row ) {
 			$res2 = $dbr->selectRow(
 				'page',
@@ -118,12 +118,14 @@ class ArticleScores extends SpecialPage {
 			if( $res2 && $namespace_allowed ) {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
-				$output .= "<div class='col-md-2'><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></div>\n";
-				$output .= "<div class='col-md-2'>" . round( $row->score, 2 ) . "</div>\n";
-				$output .= "<div class='col-md-2'>" . $row->usersCount . "</div>\n";
+				$output .= "<tr>\n";
+				$output .= "<td><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>\n";
+				$output .= "<td>" . round( $row->score, 2 ) . "</td>\n";
+				$output .= "<td>" . $row->usersCount . "</td>\n";
+				$output .= "</tr>\n";
 			}
 		}
-		$output .= "</div>\n";
+		$output .= "</tbody>\n<table>\n";
 		$out->addHTML( $output );
 	}
 	

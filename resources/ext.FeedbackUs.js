@@ -1,6 +1,9 @@
 /**
- * Add onclick for fbuModal
- * Send feedback
+ * Javascript for extension
+ * @ingroup Extensions
+ * @author Josef Martiňák
+ * @license MIT
+ * @file
  */
 
 ( function ( mw, $ ) {
@@ -22,20 +25,7 @@
 		$('#asError').removeClass("d-none").addClass("d-none");
 	})
 
-
-	/*
-	// Unlock submit button of #fbuModal form when comment filled
-	$('#FeedbackUsComment').change(function( event ) {
-		if( $(this).val() != '' && $("#modalSendButton").hasClass("disabled")) {
-			$("#modalSendButton").removeClass("disabled");
-		}
-		else if( $(this).val() == '' && !$("#modalSendButton").hasClass("disabled")) {
-			$("#modalSendButton").addClass("disabled");
-		}
-	})
-	*/
-
-	// Send form
+	// Send modal form
 	$('#fbuModal form').submit(function( event ) {
 		event.preventDefault();
 
@@ -108,6 +98,7 @@
 			}
 		});
 	});
+
 	$( ".asStar" ).mouseover(function() {
 		var rating = $(this).data("rating");
 		displayRating(rating);
@@ -117,35 +108,17 @@
 		displayRating(rating);
 	});
 
-	// Add filter to link
-	$( ".pagerItem" ).click(function(e) {
-		e.preventDefault();
-		if( $("#solvedSwitch").is(":checked") ) {
-			var newhref = $(this).href().replace("archive", "") + "archive";
-			window.location.href = newhref;
-			exit;
-		}
-	});
-
-	// solvedSwitch on change
-	$('#solvedSwith').change(function() {
-        if($(this).is(":checked")) {
-			window.location.href = window.location.origin + "/w/Special:FeedbackUs/1-archive";
-        }
-		else window.location.href = window.location.origin + "/w/Special:FeedbackUs/1";
-    });
-
-
-	/**
-	 * Display correct colors of stars' rating
-	 * @param {int} rating: chosen rating
-	 */
-	function displayRating(rating) {
-		$(".ratingBar span").each(function() {
-			var color = "white";
-			if( $(this).data("rating") <= rating ) color = "orange";
-			$(this).find("img").attr("src", window.location.origin + "/extensions/FeedbackUs/resources/img/star_" + color + ".png");
-		});
-	}
-
 }( mediaWiki, jQuery ) );
+
+
+/**
+ * Display correct colors of stars' rating
+ * @param {int} rating: chosen rating
+ */
+function displayRating(rating) {
+	$(".ratingBar span").each(function() {
+		var color = "white";
+		if( $(this).data("rating") <= rating ) color = "orange";
+		$(this).find("img").attr("src", window.location.origin + "/extensions/FeedbackUs/resources/img/star_" + color + ".png");
+	});
+}

@@ -54,7 +54,7 @@
 			"description": "Numbers of namespaces we want to give this kind of feedback, separated by comma."
 		},
 		"pageCount": {
-			"value": 15,
+			"value": 5,
 			"description": "Pager. Default 50 comments on page."
 		},
 		"otrs": {
