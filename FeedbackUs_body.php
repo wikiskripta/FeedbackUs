@@ -90,9 +90,9 @@ class FeedbackUs extends SpecialPage {
 					// send comment to OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
 					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-					$body = $this->msg( 'feedbackus-message-label' )->plain();
-					$body .= $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL;
-					$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL;
+					$body = $this->msg( 'feedbackus-message-label' )->plain() . PHP_EOL . PHP_EOL;
+					$body .= $wikiurl . "/index.php?curid=" . $page_id . PHP_EOL;
+					$body .= $wikiurl . "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment;
 					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 						$ret = 'Error: sending mail';
 					}
@@ -250,9 +250,9 @@ class FeedbackUs extends SpecialPage {
 			if( $config->get("otrs") ) {
 				// send comment to OTRS
 				if(empty( $email )) $email = $config->get("otrsAddress");
-				$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-				$body .= $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL;
-				$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment . PHP_EOL . PHP_EOL;
+				$subject = $this->msg( 'feedbackus-message-subject' )->plain() . PHP_EOL;
+				$body .= PHP_EOL . PHP_EOL . $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL;
+				$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment;
 				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 					$ret = 'Error: sending mail';
 				}
