@@ -380,10 +380,10 @@ class FeedbackUs extends SpecialPage {
 				if($filter) {
 					$filter = ltrim($filter,'-');
 					$output .= $this->msg( 'feedbackus-specialpage-solved-by' )->text() . ": <a href='$wikiurl/w/User:" . $row->solved_username . "'>" . $row->solved_username . "</a> (" . substr( $row->solved_timestamp, 0, 10 );
-					$output .= ", <a class='solvedButton' href='$wikiurl/w/Special:FeedbackUs?feedback_id=" . $row->id . "&pagerid=$pagerID&filter=$filter&solved=0&action=solvefeedback&page_id=" . $page_id . "'>" . $this->msg( 'feedbackus-specialpage-mark-as-nonsolved' )->text() . ")</a>";
+					$output .= ", <a class='solvedButton' href='$wikiurl/w/Special:FeedbackUs/?feedback_id=" . $row->id . "&pagerid=$pagerID&filter=$filter&solved=0&action=solvefeedback&page_id=" . $page_id . "'>" . $this->msg( 'feedbackus-specialpage-mark-as-nonsolved' )->text() . ")</a>";
 				}
 				else {
-					$output .= "<a class='solvedButton' href='$wikiurl/w/Special:FeedbackUs?feedback_id=" . $row->id . "&pagerid=$pagerID&filter=$filter&solved=1&action=solvefeedback&page_id=" . $page_id . "'>" . $this->msg( 'feedbackus-specialpage-mark-as-solved' )->text() . "</a>";
+					$output .= "<a class='solvedButton' href='$wikiurl/w/Special:FeedbackUs/?feedback_id=" . $row->id . "&pagerid=$pagerID&filter=$filter&solved=1&action=solvefeedback&page_id=" . $page_id . "'>" . $this->msg( 'feedbackus-specialpage-mark-as-solved' )->text() . "</a>";
 				}
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
