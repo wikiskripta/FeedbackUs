@@ -62,7 +62,7 @@
 			"description": "If true, comments are sent to email address in otrsAddress. Also info about closing ticket."
 		},
 		"otrsAddress": {
-			"value": "josef.martinak@gmail.com",
+			"value": "example@gmail.com",
 			"description": "Email address checked by OTRS."
 		},
 		"articleScoresDefaultItemsCount": {

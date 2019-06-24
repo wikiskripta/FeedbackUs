@@ -11,7 +11,7 @@
 	"feedbackus-specialpage-timestamp": "Time",
 	"feedbackus-specialpage-show-solved": "Show solved items",
 	"feedbackus-specialpage-mark-as-solved": "Mark as solved",
-	"feedbackus-specialpage-mark-as-nonsolved": "Mark as non-solved",
+	"feedbackus-specialpage-mark-as-nonsolved": "undo",
 	"feedbackus-specialpage-solved-by": "Solved by",
 	"feedbackus-specialpage-articlename": "Name of the article",
 	"feedbackus-specialpage-comments": "Comments",
