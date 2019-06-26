@@ -398,7 +398,7 @@ class FeedbackUs extends SpecialPage {
 			// get info about page_id
 			$article = Article::newFromId( $page_id );
 			$title = $article->getTitle();
-			$output = "<h3><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a> <a href='$wikiurl/w/Special:FeedbackUs'>&laquo;</a></h3>\n";
+			$output = "<h3><a href='$wikiurl/w/Special:FeedbackUs' title='HOME'>&laquo;</a> <a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></h3>\n";
 
 			// prepare output table 
 			$output .= "<table class='table table-striped'>\n<thead>\n<tr>\n";
