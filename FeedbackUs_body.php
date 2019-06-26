@@ -90,7 +90,7 @@ class FeedbackUs extends SpecialPage {
 					// send comment to OTRS
 					if(empty( $email )) $email = $config->get("otrsAddress");
 					$subject = $this->msg( 'feedbackus-message-subject' )->plain();
-					$body = $this->msg( 'feedbackus-message-label' )->plain() . PHP_EOL . PHP_EOL;
+					$body = $this->msg( 'feedbackus-message-label' )->plain() . PHP_EOL . PHP_EOL . $this->msg( 'feedbackus-message-body' )->plain() . PHP_EOL . PHP_EOL;
 					$body .= $wikiurl . "/index.php?curid=" . $page_id . PHP_EOL;
 					$body .= $wikiurl . "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment;
 					if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
@@ -251,7 +251,7 @@ class FeedbackUs extends SpecialPage {
 				// send comment to OTRS
 				if(empty( $email )) $email = $config->get("otrsAddress");
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain() . PHP_EOL;
-				$body .= PHP_EOL . PHP_EOL . $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL;
+				$body .= PHP_EOL . PHP_EOL . $this->msg( 'feedbackus-message-body' )->plain() . PHP_EOL . PHP_EOL . $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL;
 				$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment;
 				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 					$ret = 'Error: sending mail';
@@ -398,7 +398,7 @@ class FeedbackUs extends SpecialPage {
 			// get info about page_id
 			$article = Article::newFromId( $page_id );
 			$title = $article->getTitle();
-			$output = "<h3><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></h3>\n";
+			$output = "<h3><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a> <a href='$wikiurl/w/Special:FeedbackUs'>&laquo;</a></h3>\n";
 
 			// prepare output table 
 			$output .= "<table class='table table-striped'>\n<thead>\n<tr>\n";
