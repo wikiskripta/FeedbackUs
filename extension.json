@@ -74,8 +74,8 @@
 			"description": "Default number of reviewers - FROM."
 		},
 		"articleScoresDefaultReviewersCountTO": {
-			"value": 50,
-			"description": "Default number of reviewers - TO."
+			"value": 0,
+			"description": "Default number of reviewers - TO (0=unlimited)."
 		}
 	},
 	"manifest_version": 2
