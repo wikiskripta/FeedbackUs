@@ -96,7 +96,7 @@ class ArticleScores extends SpecialPage {
 		$res = $dbr->select(
 			'articlescores_sum',
 			array( 'page_id', 'score', 'usersCount' ),
-			"score=$filterRating and usersCount>=$filterReviewersFROM and usersCount<=$filterReviewersTO",
+			"score>=" . ($filterRating-0.5) ." and score<" . ($filterRating+0.5) . " and usersCount>=$filterReviewersFROM and usersCount<=$filterReviewersTO",
 			'__METHOD__',
 			array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresDefaultItemsCount") )
 		);
