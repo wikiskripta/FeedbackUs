@@ -67,6 +67,9 @@ class ArticleScores extends SpecialPage {
 		$output .= "<select name='filterReviewersTO' class='form-control col'>\n";
 		if(isset($_POST["filterReviewersTO"])) $filterReviewersTO = $_POST["filterReviewersTO"];
 		else $filterReviewersTO = $config->get("articleScoresDefaultReviewersCountTO");
+		$output .= "<option value='0' ";
+		if($filterReviewersTO == 0) $output .= "selected";
+		$output .= ">" . $this->msg( 'articlescores-unlimited' )->text() . "</option>\n";
 		for($i=1;$i<=100;$i++) {
 			$output .= "<option value='$i' ";
 			if($filterReviewersTO == $i) $output .= "selected";
@@ -81,9 +84,6 @@ class ArticleScores extends SpecialPage {
 		$output .= "<select name='filterItemsNo' class='form-control col'>\n";
 		if(isset($_POST["filterItemsNo"])) $filterItemsNo = $_POST["filterItemsNo"];
 		else $filterItemsNo = $config->get("articleScoresDefaultItemsCount");
-		$output .= "<option value='0' ";
-		if($filterItemsNo == 0) $output .= "selected";
-		$output .= ">" . $this->msg( 'articlescores-unlimited' )->text() . "</option>\n";
 		for($i=50;$i<=2000;$i+=50) {
 			$output .= "<option value='$i' ";
 			if($filterItemsNo == $i) $output .= "selected";
