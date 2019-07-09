@@ -123,8 +123,7 @@ class ArticleScores extends SpecialPage {
 				array( 'page_namespace', 'page_title' ),
 				array( 'page_id' => $row->page_id )
 			);
-			$namespace_allowed = in_array($res2->page_namespace, $config->get("namespaces")) ? true:false;
-			if( $res2 && $namespace_allowed ) {
+			if( $res2 && in_array($res2->page_namespace, $config->get("namespaces")) ) {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
 				$output .= "<tr>\n";
