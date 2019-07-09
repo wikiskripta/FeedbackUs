@@ -100,7 +100,7 @@ class ArticleScores extends SpecialPage {
 
 		// SHOW LIST
 		if($filterReviewersTO) $toCondition =  "and usersCount<=$filterReviewersTO"; else $toCondition = '';
-		if($filterItemsNo) $orderLimitCondition =  array( 'ORDER BY' => 'score,usersCount','LIMIT' => $filterItemsNo );
+		if($filterItemsNo) $orderLimitCondition =  array( 'ORDER BY' => 'score','LIMIT' => $filterItemsNo );
 		else $orderLimitCondition =  array( 'ORDER BY' => 'score' );
 		$res = $dbr->select(
 			'articlescores_sum',
