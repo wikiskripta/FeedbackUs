@@ -129,7 +129,7 @@ class ArticleScores extends SpecialPage {
 				$title = $article->getTitle();
 				$output .= "<tr>\n";
 				$output .= "<td><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>\n";
-				$output .= "<td>" . round( $row->score, 2 ) . "</td>\n";
+				$output .= "<td>" . preg_replace("/\./",",", round( $row->score, 2 )) . "</td>\n";
 				$output .= "<td>" . $row->usersCount . "</td>\n";
 				$output .= "</tr>\n";
 			}
