@@ -84,6 +84,9 @@ class ArticleScores extends SpecialPage {
 		$output .= "<select name='filterItemsNo' class='form-control col'>\n";
 		if(isset($_POST["filterItemsNo"])) $filterItemsNo = $_POST["filterItemsNo"];
 		else $filterItemsNo = $config->get("articleScoresDefaultItemsCount");
+		$output .= "<option value='0' ";
+		if($filterItemsNo == 0) $output .= "selected";
+		$output .= ">" . $this->msg( 'articlescores-unlimited' )->text() . "</option>\n";
 		for($i=50;$i<=2000;$i+=50) {
 			$output .= "<option value='$i' ";
 			if($filterItemsNo == $i) $output .= "selected";
@@ -97,12 +100,14 @@ class ArticleScores extends SpecialPage {
 
 		// SHOW LIST
 		if($filterReviewersTO) $toCondition =  "and usersCount<=$filterReviewersTO"; else $toCondition = '';
+		if($filterItemsNo) $orderLimitCondition =  array( 'ORDER BY' => 'score','LIMIT' => $filterItemsNo );
+		else $orderLimitCondition =  array( 'ORDER BY' => 'score' );
 		$res = $dbr->select(
 			'articlescores_sum',
 			array( 'page_id', 'score', 'usersCount' ),
 			"score BETWEEN " . ($filterRating-0.5) ." and " . ($filterRating+0.49) . " and usersCount>=$filterReviewersFROM $toCondition",
 			'__METHOD__',
-			array( 'ORDER BY' => 'score DESC','LIMIT' => $config->get("articleScoresDefaultItemsCount") )
+			$orderLimitCondition
 		);
 
 		$output .= "<table class='table table-striped mt-4'>\n<thead>\n<tr>\n";
