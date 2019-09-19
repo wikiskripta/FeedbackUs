@@ -222,7 +222,7 @@ class FeedbackUs extends SpecialPage {
 
 			$solved = $_GET['solved'];  // feedback had been processed
 			$feedback_id = $_GET['feedback_id'];
-			$pagerID = $_GET['pagerid'];
+			if(!empty($_GET['pagerid'])) $pagerID = $_GET['pagerid']; else $pagerID = 1;
 			if(!empty($_GET['filter'])) $filter = "-archive"; else $filter = '';
 
 			if( !in_array($solved, [0, 1]) || !is_numeric($feedback_id) ) {
@@ -252,7 +252,7 @@ class FeedbackUs extends SpecialPage {
 				if(empty( $email )) $email = $config->get("otrsAddress");
 				$subject = $this->msg( 'feedbackus-message-subject' )->plain() . PHP_EOL;
 				$body .= PHP_EOL . PHP_EOL . $this->msg( 'feedbackus-message-body' )->plain() . PHP_EOL . PHP_EOL . $wikiurl. "/index.php?curid=" . $page_id . PHP_EOL;
-				$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id . PHP_EOL . PHP_EOL . $comment;
+				$body .= $wikiurl. "/w/Special:FeedbackUs/?page_id=" . $page_id;
 				if( !$this->sendMail( $config->get("otrsAddress"), $email, $subject, $body ) ) {
 					$ret = 'Error: sending mail';
 				}
