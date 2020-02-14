@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS `feedbackus` (
 ) COMMENT='Feedback';
 
 CREATE INDEX page_id ON feedbackus(page_id);
-CREATE FULLTEXT INDEX comment ON feedbackus(comment);
+CREATE INDEX rev_id ON feedbackus(rev_id);
+CREATE INDEX timestamp ON feedbackus(timestamp);
+
+
 
 
