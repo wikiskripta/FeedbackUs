@@ -1,6 +1,6 @@
 {
 	"name": "FeedbackUs",
-	"version": "1.1",
+	"version": "1.2",
 	"author": "[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
 	"url": "https://bitbucket.org/wikiskripta/feedbackus",
 	"descriptionmsg": "feedbackus-desc",
@@ -27,9 +27,14 @@
 	"ResourceModules": {
 		"ext.FeedbackUs": {
 			"position": "top",
-			"styles": [
-				"ext.FeedbackUs.css"
-			],
+			"styles": {
+				"ext.FeedbackUs.css": {
+					"media": "screen"
+				  },
+				  "ext.FeedbackUs.print.css": {
+					"media": "print"
+				  }
+			},
 			"scripts": [
 				"ext.FeedbackUs.js"
 			],
