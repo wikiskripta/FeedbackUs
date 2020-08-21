@@ -388,7 +388,7 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
 			}
-			$output .= "</tbody>\n<table>\n";
+			$output .= "</tbody>\n</table>\n";
 			$out->addHTML( $output );
 		}
 		else {
@@ -433,7 +433,7 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
 			}
-			$output .= "</tbody>\n<table>\n";
+			$output .= "</tbody>\n</table>\n";
 			$out->addHTML( $output );
 		}
 	}
