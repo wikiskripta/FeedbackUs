@@ -350,7 +350,7 @@ class FeedbackUs extends SpecialPage {
 			$output .= "<table class='table table-striped'>\n<thead>\n<tr>\n";
 			$output .= "<th>" . $this->msg( 'feedbackus-specialpage-articlename' )->text() . "</th>\n";
 			$output .= "<th>" . $this->msg( 'feedbackus-specialpage-comments' )->text() . "</th>\n";
-			$output .= "<th>Email</div>\n";
+			$output .= "<th>Email</th>\n";
 			$output .= "<th>" . $this->msg( 'feedbackus-specialpage-timestamp' )->text() . "</th>\n<th></th>\n";
 			$output .= "</tr>\n</thead>\n<tbody>\n";
 
@@ -388,7 +388,7 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
 			}
-			$output .= "</tbody>\n<table>\n";
+			$output .= "</tbody>\n</table>\n";
 			$out->addHTML( $output );
 		}
 		else {
@@ -433,7 +433,7 @@ class FeedbackUs extends SpecialPage {
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
 			}
-			$output .= "</tbody>\n<table>\n";
+			$output .= "</tbody>\n</table>\n";
 			$out->addHTML( $output );
 		}
 	}
