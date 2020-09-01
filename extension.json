@@ -1,7 +1,10 @@
 {
 	"name": "FeedbackUs",
 	"version": "1.2",
-	"author": "[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
+    "author": [
+		"[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
+		"[https://www.wikiskripta.eu/w/User:Slepi Petr Kajzar]"
+	],   
 	"url": "https://bitbucket.org/wikiskripta/feedbackus",
 	"descriptionmsg": "feedbackus-desc",
 	"type": "specialpage",
