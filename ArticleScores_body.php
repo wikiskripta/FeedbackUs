@@ -22,7 +22,10 @@ class ArticleScores extends SpecialPage {
 		$this->setHeaders();
 		$out = $this->getOutput();
 		$config = $this->getConfig();
-		$dbr = wfGetDB( DB_SLAVE );
+
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		//$dbr = wfGetDB( DB_REPLICA );
 
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );

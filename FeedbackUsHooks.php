@@ -50,7 +50,7 @@ class FeedbackUsHooks {
 				$modal .= "</div>\n";
 				$modal .= "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>\n";
 				$modal .= "<span aria-hidden='true'>&times;</span>\n";
-        		$modal .= "</button>\n";
+				$modal .= "</button>\n";
 				$modal .= "</div>\n"; // end of header
 				
 				// body
@@ -79,7 +79,7 @@ class FeedbackUsHooks {
 				$modal .= wfMessage( 'articlescores-one-per-day' )->text() . "\n";
 				$modal .= "</div>\n";
 				$modal .= "</form>\n</div>\n"; // end of body
-    			$modal .= "</div>\n</div>\n</div>\n";
+				$modal .= "</div>\n</div>\n</div>\n";
 				$out->prependHTML( $modal );
 			}
 		}
@@ -96,7 +96,10 @@ class FeedbackUsHooks {
 		
 		
 		// get article's rating
-		$dbr = wfGetDB(DB_SLAVE);
+		//$dbr = wfGetDB(DB_REPLICA);
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+
 		$res = $dbr->selectRow(
 			"articlescores_sum",
 			array("stars","usersCount"),
@@ -139,7 +142,9 @@ class FeedbackUsHooks {
 	# @param $rev_page: id of the page
 	# Returns recent score (rounded)
 	public static function saveScore($rev_page) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		//$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			"revision",
 			array("rev_id"),
@@ -180,8 +185,10 @@ class FeedbackUsHooks {
 		if($wSum) {
 			$stars = floor(0.5+$sc/$wSum);	// number of stars (rounded rating)
 			// save recent score to feedbackus_sum
-			$dbrmaster = wfGetDB(DB_MASTER);
-			$res = $dbrmaster->update(
+			$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+			$dbw = $conn->getConnectionRef(DB_PRIMARY);
+			//$dbw = wfGetDB(DB_PRIMARY);
+			$res = $dbw->update(
 				"articlescores_sum",
 				array("score" => $sc/$wSum,"stars" => $stars,"usersCount" => $rnumber),
 				array("page_id" => $rev_page)

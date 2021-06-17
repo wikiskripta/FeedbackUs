@@ -4,10 +4,10 @@ Mediawiki extension.
 
 ## Description
 
-* Version 2.0
+* Version 2.1
 * Extension gives feedback regarding the articles
-    * User can send messages to wiki sysops.
-	* User can see and change article's rating.
+* User can send messages to wiki sysops.
+* User can see and change article's rating.
 * Special pages with feedback.
 * Feedback popup available only for "Medik" skin (can be changed at the beginning of FeedbackUsHooks:activateFB()).
 
@@ -68,6 +68,10 @@ This extension is available in English and Czech language. For other languages, 
 * Direct link in the OTRS message. Feedback item has a detail page now.
 * Message can be edited at _Mediawiki:feedbackus-message-subject_ and Mediawiki:feedbackus-message-body.
 
+### 2.1
+
+* "The constant DB_SLAVE/MASTER deprecated in 1.28. Use DB_REPLICA/PRIMARY instead.
+
 #### FeedbackUs special page
 
 * User can mark an item as "solved".
@@ -81,4 +85,4 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart), [Petr Kajzar](https://www.wikiskripta.eu/w/User:Slepi)
-* MIT License, Copyright (c) 2019 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2021 First Faculty of Medicine, Charles University

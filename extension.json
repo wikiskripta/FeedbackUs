@@ -1,17 +1,14 @@
 {
 	"name": "FeedbackUs",
-	"version": "1.2",
-    "author": [
-		"[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
-		"[https://www.wikiskripta.eu/w/User:Slepi Petr Kajzar]"
-	],   
+	"version": "2.1",
+	"author": "[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
 	"url": "https://bitbucket.org/wikiskripta/feedbackus",
 	"descriptionmsg": "feedbackus-desc",
 	"type": "specialpage",
 	"license-name": "MIT",
 	"status": "stable",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.36.0"
 	},
 	"SpecialPages": {
 		"FeedbackUs": "FeedbackUs",
@@ -30,14 +27,9 @@
 	"ResourceModules": {
 		"ext.FeedbackUs": {
 			"position": "top",
-			"styles": {
-				"ext.FeedbackUs.css": {
-					"media": "screen"
-				  },
-				  "ext.FeedbackUs.print.css": {
-					"media": "print"
-				  }
-			},
+			"styles": [
+				"ext.FeedbackUs.css"
+			],
 			"scripts": [
 				"ext.FeedbackUs.js"
 			],
@@ -66,11 +58,11 @@
 			"description": "Pager. Default 50 comments on page."
 		},
 		"otrs": {
-			"value": false,
+			"value": true,
 			"description": "If true, comments are sent to email address in otrsAddress. Also info about closing ticket."
 		},
 		"otrsAddress": {
-			"value": "example@gmail.com",
+			"value": "info@wikiskripta.eu",
 			"description": "Email address checked by OTRS."
 		},
 		"articleScoresDefaultItemsCount": {

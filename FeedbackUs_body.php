@@ -29,8 +29,13 @@ class FeedbackUs extends SpecialPage {
 		# URL of this wiki
 		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\/' );
 
-		$dbr = wfGetDB( DB_SLAVE );
-		$dbw = wfGetDB( DB_MASTER );
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		$dbw = $conn->getConnectionRef(DB_PRIMARY);
+
+		//$dbr = wfGetDB( DB_REPLICA );
+		//$dbw = wfGetDB( DB_PRIMARY );
 
 		$page_id = $request->getInt( 'page_id' );
 		$action = $request->getVal( 'action', '' );
@@ -46,7 +51,7 @@ class FeedbackUs extends SpecialPage {
 				$out->disable();
 				header( 'Content-type: application/text; charset=utf-8' );
 				echo "Error: forbidden namespace";
-				exit;	
+				return true;
 			}
 		}
 
@@ -257,7 +262,6 @@ class FeedbackUs extends SpecialPage {
 					$ret = 'Error: sending mail';
 				}
 			}
-
 			// refresh page
 			if( $request->getInt('detail') == 1 ) {
 				echo "<script>window.location.href='$wikiurl/w/Special:FeedbackUs/?page_id=" . $page_id . "'</script>";
@@ -265,7 +269,7 @@ class FeedbackUs extends SpecialPage {
 			else {
 				echo "<script>window.location.href='$wikiurl/w/Special:FeedbackUs/$pagerID$filter'</script>";
 			}
-			exit;
+			return true;
 			break;
 		
 		}
@@ -275,7 +279,7 @@ class FeedbackUs extends SpecialPage {
 			$out->disable();
 			header( 'Content-type: application/text; charset=utf-8' );
 			echo $ret;
-			exit;
+			return true;
 		}
 
 
