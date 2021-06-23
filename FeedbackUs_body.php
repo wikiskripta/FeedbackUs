@@ -19,7 +19,7 @@ class FeedbackUs extends SpecialPage {
 
 	function execute($param) {
 
-		global $wgReadOnly;
+		global $wgReadOnly, $wgServer;
 		$this->setHeaders();
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -27,7 +27,7 @@ class FeedbackUs extends SpecialPage {
 		$config = $this->getConfig();
 
 		# URL of this wiki
-		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\/' );
+		$wikiurl = $wgServer;
 
 		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
 

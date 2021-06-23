@@ -19,6 +19,7 @@ class ArticleScores extends SpecialPage {
 
 	function execute($param) {
 
+		global $wgServer;
 		$this->setHeaders();
 		$out = $this->getOutput();
 		$config = $this->getConfig();
@@ -27,10 +28,7 @@ class ArticleScores extends SpecialPage {
 		$dbr = $conn->getConnectionRef(DB_REPLICA);
 		//$dbr = wfGetDB( DB_REPLICA );
 
-		# URL of this wiki
-		$wikiurl = rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' );
-						
-		$url = $wikiurl . '/w/Special:ArticleScores';
+		$url = $wgServer . '/w/Special:ArticleScores';
 		$info = str_replace( '#ITEMS', $config->get("articleScoresDefaultItemsCount"), $this->msg( 'articlescores-sp-info' )->text() );
 		$out->mBodytext .= "<p>$info</p>";
 
@@ -130,7 +128,7 @@ class ArticleScores extends SpecialPage {
 				$article = Article::newFromId( $row->page_id );
 				$title = $article->getTitle();
 				$output .= "<tr>\n";
-				$output .= "<td><a href='$wikiurl/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>\n";
+				$output .= "<td><a href='$wgServer/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>\n";
 				$output .= "<td>" . preg_replace("/\./",",", round( $row->score, 2 )) . "</td>\n";
 				$output .= "<td>" . $row->usersCount . "</td>\n";
 				$output .= "</tr>\n";
