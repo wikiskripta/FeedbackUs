@@ -7,8 +7,6 @@
  * Otherwise displays the list of commented articles
  * @ingroup Extensions
  * @author Josef Martiňák
- * @license MIT
- * @file
  */
 
 

@@ -85,4 +85,4 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart), [Petr Kajzar](https://www.wikiskripta.eu/w/User:Slepi)
-* MIT License, Copyright (c) 2021 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2023 First Faculty of Medicine, Charles University

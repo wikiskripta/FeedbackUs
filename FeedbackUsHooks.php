@@ -4,8 +4,6 @@
  * All hooked functions used by FeedbackUs extension.
  * @ingroup Extensions
  * @author Josef Martiňák
- * @license MIT
- * @file
  */
 
 class FeedbackUsHooks {

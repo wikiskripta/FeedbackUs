@@ -2,8 +2,6 @@
  * Javascript for extension
  * @ingroup Extensions
  * @author Josef Martiňák
- * @license MIT
- * @file
  */
 
 ( function ( mw, $ ) {
