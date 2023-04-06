@@ -11,7 +11,7 @@
 	var wikipath = window.location.origin;
 
 	// Add feedback icon 
-	$("#firstHeading").append('<div id="ca-feedback" data-toggle="modal" data-target="#fbuModal" class="noprint mb-2"><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></div>');
+	$("#firstHeading").append('<div id="ca-feedback" data-bs-toggle="modal" data-bs-target="#fbuModal" class="noprint mb-2"><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></div>');
 
 	$('#fbuModal').on('hide.bs.modal', function (e) {
 		// clear form

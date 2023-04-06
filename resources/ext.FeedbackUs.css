@@ -11,5 +11,9 @@
 
 #fbuModal .close {
 	color: #fff;
+	border: 0;
 	opacity: 1;
+	background-color: transparent;
+	font-size: 24px;
+	font-weight: bold;
 }

@@ -33,7 +33,7 @@ class FeedbackUsHooks {
 				// add modal (hidden)
 				$modal = "<div id='fbuModal' class='modal fade' tabindex='-1' role='dialog' aria-hidden='true' ";
 				$modal .= "data-rating='$rating' data-revid='" . $out->getRevisionId() . "' data-pageid='" . $page_id . "'>\n";
-				$modal .= "<div class='modal-dialog modal-md'>\n";		
+				$modal .= "<div class='modal-dialog modal-md'>\n";
 				$modal .= "<div class='modal-content'>\n";
 				// modal content
 
@@ -46,14 +46,14 @@ class FeedbackUsHooks {
 					$modal .= ".png' alt='score-$i'></span>\n";
 				}
 				$modal .= "</div>\n";
-				$modal .= "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>\n";
+				$modal .= "<button type='button' class='close' data-bs-dismiss='modal' aria-label='Close'>\n";
 				$modal .= "<span aria-hidden='true'>&times;</span>\n";
 				$modal .= "</button>\n";
 				$modal .= "</div>\n"; // end of header
 				
 				// body
 				$modal .= "<div class='modal-body'>\n<form>\n";
-						
+
 				// insert textarea and field for email
 				$modal .= "<div class='form-group'>\n";
 				$modal .= "<textarea id='FeedbackUsComment' class='form-control' placeholder='" . wfMessage( "feedbackus-message-label" )->text() . "' required></textarea>\n";
