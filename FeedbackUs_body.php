@@ -310,7 +310,7 @@ class FeedbackUs extends SpecialPage {
 
 			// pager
 			$output .= "<nav aria-label='pager'>\n";
-			$output .= "<ul class='pagination mt-3 ml-0'>\n";	
+			$output .= "<ul class='pagination mt-3 ms-0'>\n";	
 
 			// previous
 			if($pagerID==1) $prev = 1; 

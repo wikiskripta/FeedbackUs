@@ -27,7 +27,7 @@ Mediawiki extension.
 
 ## Installation
 
-* Make sure you have MediaWiki 1.29+ installed.
+* Make sure you have MediaWiki 1.36+ installed.
 * "Medik" skin selected.
 * Download and place the extension to your /extensions/ folder.
 * Add the following code to your LocalSettings.php:
