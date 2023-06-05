@@ -9,8 +9,8 @@
  * @author Josef Martiňák
  */
 
-
 class FeedbackUs extends SpecialPage {
+
 	function __construct() {
 		parent::__construct( 'FeedbackUs', 'feedbackright' );	// "editinterface" restrict to sysops
 	}
@@ -287,7 +287,7 @@ class FeedbackUs extends SpecialPage {
 			/****************************
 			 * show comments (backend)
 			 ****************************/
-			$this->checkPermissions();	
+			$this->checkPermissions();
 			$filter = '';
 			if ( empty( $param ) || !preg_match( '/^[0-9]*(-archive)*$/', $param ) ) $pagerID = 1;
 			else {
@@ -439,14 +439,12 @@ class FeedbackUs extends SpecialPage {
 			$out->addHTML( $output );
 		}
 	}
-	
-
-
 
 	/**
 	 * Send email
 	 */
 	function sendMail( $address, $from, $subject, $body ) {
+		/*
 		$header = "MIME-Version: 1.0\r\n";
 		$header .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
 		$header .= "X-Mailer: PHP\r\n";
@@ -455,6 +453,15 @@ class FeedbackUs extends SpecialPage {
 		$header .= "Reply-To: $from\r\n";
 		if( mail($address, "=?UTF-8?B?" . base64_encode($subject) . "?=", $body, $header) ) return true;
 		else return false;
+		*/	
+		$res = UserMailer::send(
+			new MailAddress( $address ),
+			new MailAddress( $from ),
+			$subject,
+			$body,
+			array( 'contentType' => 'text/html; charset=utf-8' )
+		);
+		if($res) return true; else return false;
 	}
 	
 	
