@@ -4,55 +4,85 @@ Mediawiki extension.
 
 ## Description
 
-* Version 1.0
+* Version 2.1
 * Extension gives feedback regarding the articles
-    * User can send messages to wiki sysops.
-	* User can see and change article's rating.
-* Special page available only for sysops, can show the list and uncheck the corrected articles
-* {{#feedme:width|height}} ... inserting message box to a page
-* Former ArticleScores and Blackdot extensions are joined into this one. 
-    * _articlescores_ and _articlescores_sum_ tables are still in use. 
-    * _blackdot_ table should be deleted after initial import `INSERT INTO feedbackus(page_id,comment,timestamp) SELECT page_id,comment,last_comment_timestamp FROM blackdot ORDER BY id;`
-
+* User can send messages to wiki sysops.
+* User can see and change article's rating.
+* Special pages with feedback.
+* Feedback popup available only for "Medik" skin (can be changed at the beginning of FeedbackUsHooks:activateFB()).
 
 ## SpecialPage
 
-SpecialPage:FeedbackUs diplays commented articles.
-SpecialPage:ArticleScores diplays a chart of reviewed articles
+### SpecialPage:FeedbackUs
 
+* List of commented articles.
+* Only sysops can access.
+* User can mark an item as "solved".
+* Solved items contain username and timestamp.
+
+### SpecialPage:ArticleScores
+
+* Chart of reviewed articles
+* Options: rating, number of article's reviewers (with given rating)
 
 ## Installation
 
-* Make sure you have MediaWiki 1.28+ installed.
-* Download and place the extension's folder to your /extensions/ folder.
-* Add the following code to your LocalSettings.php: 
-```
+* Make sure you have MediaWiki 1.36+ installed.
+* "Medik" skin selected.
+* Download and place the extension to your /extensions/ folder.
+* Add the following code to your LocalSettings.php:
+
+``` php
 wfLoadExtension( 'FeedbackUs' );
 $wgGroupPermissions['*']['feedbackus'] = false;
-$wgGroupPermissions['user']['feedbackus'] = false;
 $wgGroupPermissions['sysop']['feedbackus'] = true;
 ```
-* Run `maintenance/update.php`, _feedbackus_, _articlescores_ and _articlescores_sum_ tables will be added.
 
+* Run `maintenance/update.php`, _feedbackus_, _articlescores_ and _articlescores_sum_ tables will be added (if not exist).
 
 ## Configuration
 
-Open _config.php_ and set following constants:
-
-* FU-NAMESPACES - numbers of namespaces we want to give this kind of feedback, separated by comma
-    * For example define('FU-NAMESPACES', '0,2,12'); allows Main, User, Help namespaces.
-    * Numbers of built in namespaces can be found at http://www.mediawiki.org/wiki/Manual:Namespace.
-    * Default is 0 = Main namespace.
-* FU-PAGE_COUNT - pager. Default 50 comments on page
-* FU-SEND_TO_OTRS. If set (=1), comments from magic box with given sender email are sent to email address in FU-OTRS-ADDRESS
-
+Edit config section of _extension.json_.
 
 ## Internationalization
 
 This extension is available in English and Czech language. For other languages, just edit files in /i18n/ folder.
 
+## RELEASE NOTES
+
+### 1.1
+
+* Manifest version 2
+* MW 1.29+
+* Config moved to _extensions.json_
+
+### 1.2
+
+* Bootstrap modals
+* Magic box removed
+
+### 2.0
+
+* Checkboxes removed
+* Stars' rating instead of dropdown.
+* Direct link in the OTRS message. Feedback item has a detail page now.
+* Message can be edited at _Mediawiki:feedbackus-message-subject_ and Mediawiki:feedbackus-message-body.
+
+### 2.1
+
+* "The constant DB_SLAVE/MASTER deprecated in 1.28. Use DB_REPLICA/PRIMARY instead.
+
+#### FeedbackUs special page
+
+* User can mark an item as "solved".
+* "Solving" an item triggers sending info to OTRS.
+* Solved items contain username and timestamp.
+
+#### ArticleScores special page
+
+* Options: rating, number of article's reviewers (with given rating), number of articles displayed
 
 ## Authors and license
 
-* [Josef Martiňák](https://bitbucket.org/josmart/)
-* MIT License, Copyright (c) 2017 First Faculty of Medicine, Charles University
+* [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart), [Petr Kajzar](https://www.wikiskripta.eu/w/User:Slepi)
+* MIT License, Copyright (c) 2023 First Faculty of Medicine, Charles University

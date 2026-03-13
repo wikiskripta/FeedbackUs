@@ -1,9 +1,18 @@
 {
-	"name": "feedbackus",
-	"version": "1.0",
-	"author": "Josef Martiňák",
+	"name": "FeedbackUs",
+	"version": "2.1",
+	"author": [
+		"[https://www.wikiskripta.eu/w/User:Josmart Josef Martiňák]",
+		"[https://www.wikiskripta.eu/w/User:Slepi Petr Kajzar]"
+	],
+	"url": "https://bitbucket.org/wikiskripta/feedbackus",
 	"descriptionmsg": "feedbackus-desc",
 	"type": "specialpage",
+	"license-name": "MIT",
+	"status": "stable",
+	"requires": {
+		"MediaWiki": ">= 1.36.0"
+	},
 	"SpecialPages": {
 		"FeedbackUs": "FeedbackUs",
 		"ArticleScores": "ArticleScores"
@@ -12,9 +21,6 @@
 		"FeedbackUs": [
 			"i18n"
 		]
-	},
-	"ExtensionMessagesFiles": {
-		"FeedbackUsMagic": "FeedbackUs.i18n.magic.php"
 	},
 	"AutoloadClasses": {
 		"FeedbackUsHooks": "FeedbackUsHooks.php",
@@ -33,53 +39,47 @@
 			"dependencies": [
 			],
 			"messages": [
-				"feedbackus-frame-legend",
-				"feedbackus-cancel-button",
-				"feedbackus-send-button",
-				"feedbackus-message-label",
-				"feedbackus-thanks",
-				"feedbackus-email-label",
-				"feedbackus-issues",
-				"feedbackus-option0",
-				"feedbackus-option1",
-				"feedbackus-option2",
-				"feedbackus-00-startitle",
-				"feedbackus-0-startitle",
-				"feedbackus-1-startitle",
-				"feedbackus-2-startitle",
-				"feedbackus-3-startitle",
-				"feedbackus-4-startitle",
-				"feedbackus-5-startitle",
-				"articlescores-one-per-day",
-				"articlescores-score"
-			]
-		},
-		"ext.FeedbackUs.magic": {
-			"position": "bottom",
-			"styles": [
-				"ext.FeedbackUs.magic.css"
-			],
-			"scripts": [
-				"ext.FeedbackUs.magic.js"
-			],
-			"dependencies": [
-			],
-			"messages": [
-				"feedbackus-thanks",
-				"feedbackus-link",
-				"feedbackus-title",
-				"feedbackus-send-button"
+				"articlescores-one-per-day"
 			]
 		}
 	},
 	"ResourceFileModulePaths": {
-		"localBasePath": "",
-		"remoteExtPath": "FeedbackUs"
+		"localBasePath": "resources",
+		"remoteExtPath": "FeedbackUs/resources"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "FeedbackUsHooks::FeedbackUsUpdateSchema",
-		"BeforePageDisplay": "FeedbackUsHooks::activateFB",
-		"ParserFirstCallInit": "FeedbackUsHooks::efFeedbackUs_Setup"
+		"BeforePageDisplay": "FeedbackUsHooks::activateFB"
 	},
-	"manifest_version": 1
+	"config": {
+		"namespaces": {
+			"value": [0,100,102],
+			"description": "Numbers of namespaces we want to give this kind of feedback, separated by comma."
+		},
+		"pageCount": {
+			"value": 5,
+			"description": "Pager. Default 50 comments on page."
+		},
+		"otrs": {
+			"value": true,
+			"description": "If true, comments are sent to email address in otrsAddress. Also info about closing ticket."
+		},
+		"otrsAddress": {
+			"value": "info@wikiskripta.eu",
+			"description": "Email address checked by OTRS."
+		},
+		"articleScoresDefaultItemsCount": {
+			"value": 100,
+			"description": "Default number of scored articles showed at Special:ArticleScores."
+		},
+		"articleScoresDefaultReviewersCountFROM": {
+			"value": 5,
+			"description": "Default number of reviewers - FROM."
+		},
+		"articleScoresDefaultReviewersCountTO": {
+			"value": 0,
+			"description": "Default number of reviewers - TO (0=unlimited)."
+		}
+	},
+	"manifest_version": 2
 }

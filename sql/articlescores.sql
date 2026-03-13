@@ -14,3 +14,6 @@ CREATE TABLE IF NOT EXISTS `articlescores` (
 
 CREATE INDEX rev_page ON articlescores(rev_page);
 CREATE INDEX rev_id ON articlescores(rev_id);
+CREATE INDEX scoreSum ON articlescores(scoreSum);
+CREATE INDEX usersCount ON articlescores(usersCount);
+CREATE INDEX last_inserted ON articlescores(last_inserted);

@@ -4,8 +4,6 @@
  * All hooked functions used by FeedbackUs extension.
  * @ingroup Extensions
  * @author Josef Martiňák
- * @license MIT
- * @file
  */
 
 class FeedbackUsHooks {
@@ -16,21 +14,14 @@ class FeedbackUsHooks {
 	 * @param $skin Skin: instance of Skin
 	 */
 	public static function activateFB( &$out, &$skin ) {
-
 		// FeedbackUs only for articles from defined namespace (Main page exluded)
+		global $wgServer;
 		if( !$out->isArticle() ) return true;
 		$title = $out->getTitle();
-
-		# URL of this wiki
-		if( !defined( 'WIKIURL' ) ) {
-			define( 'WIKIURL', rtrim( WebRequest::detectServer().dirname( $_SERVER['SCRIPT_NAME'] ), '\\' ) );
-		}
-		# Read configuration options 
-		require_once( __DIR__ . '/config.php' );
-
-		$allowed = strpos( ',' . FU_NAMESPACES . ',', ',' . $title->getNamespace() . ',' );
+		$config = $out->getConfig();
 		
-		if ( !$title->isMainPage() && $allowed !== false ) {
+		$allowed = in_array($title->getNamespace(), $config->get("namespaces")) ? true:false;
+		if ( !$title->isMainPage() && $allowed !== false && $skin->getSkinName() == 'medik' ) {
 			// show icon
 			$page_id = $out->getWikiPage()->getId();
 			if( !empty( $page_id ) ) {
@@ -38,14 +29,57 @@ class FeedbackUsHooks {
 				$out->addModules('ext.FeedbackUs');
 				$rating = FeedbackUsHooks::getRating($out,$skin);
 				if( empty( $rating ) ) $rating = 0;
-				$lnk = "<div alt='" . $rating. "@" . $out->getRevisionId() . "' id='FeedbackUsLink' class='aid" . $page_id . "' ";
-				$lnk .= "style='display:none;'>" . $out->msg('feedbackus-link')->text() . "</div>\n";
-				$out->prependHTML( $lnk );
+
+				// add modal (hidden)
+				$modal = "<div id='fbuModal' class='modal fade' tabindex='-1' role='dialog' aria-hidden='true' ";
+				$modal .= "data-rating='$rating' data-revid='" . $out->getRevisionId() . "' data-pageid='" . $page_id . "'>\n";
+				$modal .= "<div class='modal-dialog modal-md'>\n";
+				$modal .= "<div class='modal-content'>\n";
+				// modal content
+
+				// header - show ratings
+				$modal .= "<div class='modal-header'>\n";
+				$modal .= "<div class='ratingBar'>\n";
+				for($i=1;$i<=5;$i++) {
+					$modal .= "<span data-rating='$i' class='asStar'><img src='$wgServer/extensions/FeedbackUs/resources/img/star_";
+					if($i<=$rating) $modal .= "orange"; else $modal .= "white";
+					$modal .= ".png' alt='score-$i'></span>\n";
+				}
+				$modal .= "</div>\n";
+				$modal .= "<button type='button' class='close' data-bs-dismiss='modal' aria-label='Close'>\n";
+				$modal .= "<span aria-hidden='true'>&times;</span>\n";
+				$modal .= "</button>\n";
+				$modal .= "</div>\n"; // end of header
+				
+				// body
+				$modal .= "<div class='modal-body'>\n<form>\n";
+
+				// insert textarea and field for email
+				$modal .= "<div class='form-group'>\n";
+				$modal .= "<textarea id='FeedbackUsComment' class='form-control' placeholder='" . wfMessage( "feedbackus-message-label" )->text() . "' required></textarea>\n";
+				$modal .= "</div>\n";
+				$modal .= "<div class='form-group'>\n";
+				$modal .= "<input type='email' id='FeedbackUsEmail' class='form-control' placeholder='" . wfMessage( 'feedbackus-email-label' )->text() . "'>\n";
+				$modal .= "</div>\n";
+				
+				// insert send and cancel buttons
+				$modal .= "<button id='modalSubmitButton' class='btn btn-primary mt-3'>" . wfMessage( 'feedbackus-send-button' )->text() . "</button>\n";
+
+				// alerts
+				$modal .= "<div id='fbSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'feedbackus-thanks' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "<div id='fbError' class='alert alert-danger d-none mt-3' role='alert'></div>\n";
+				$modal .= "<div id='asSuccess' class='alert alert-success d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'articlescores-success' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "<div id='asError' class='alert alert-danger d-none mt-3' role='alert'>\n";
+				$modal .= wfMessage( 'articlescores-one-per-day' )->text() . "\n";
+				$modal .= "</div>\n";
+				$modal .= "</form>\n</div>\n"; // end of body
+				$modal .= "</div>\n</div>\n</div>\n";
+				$out->prependHTML( $modal );
 			}
-		}
-		if( preg_match( "/FeedbackUsFormMagic/", $out->mBodytext ) ) {
-			// load module for magic box
-			$out->addModules('ext.FeedbackUs.magic');
 		}
 		return true;
 	}
@@ -60,7 +94,10 @@ class FeedbackUsHooks {
 		
 		
 		// get article's rating
-		$dbr = wfGetDB(DB_SLAVE);
+		//$dbr = wfGetDB(DB_REPLICA);
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+
 		$res = $dbr->selectRow(
 			"articlescores_sum",
 			array("stars","usersCount"),
@@ -103,7 +140,9 @@ class FeedbackUsHooks {
 	# @param $rev_page: id of the page
 	# Returns recent score (rounded)
 	public static function saveScore($rev_page) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $conn->getConnectionRef(DB_REPLICA);
+		//$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			"revision",
 			array("rev_id"),
@@ -128,13 +167,11 @@ class FeedbackUsHooks {
 				// revision has been rated
 				if($res2->usersCount) {
 					$revScore = $res2->scoreSum/$res2->usersCount;
-					//$wSum = $wSum + $w;
 					$wSum = $wSum + $weight;
 				}
 				else {
 					$revScore = 0;
 				}
-				//$sc = $sc + $revScore * $w;
 				$sc = $sc + $revScore * $weight;
 				$rnumber = $rnumber + $res2->usersCount;	// sum of ratings
 			}
@@ -146,41 +183,20 @@ class FeedbackUsHooks {
 		if($wSum) {
 			$stars = floor(0.5+$sc/$wSum);	// number of stars (rounded rating)
 			// save recent score to feedbackus_sum
-			$dbrmaster = wfGetDB(DB_MASTER);
-			//$dbrmaster->begin();
-			$res = $dbrmaster->update(
+			$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
+			$dbw = $conn->getConnectionRef(DB_PRIMARY);
+			//$dbw = wfGetDB(DB_PRIMARY);
+			$res = $dbw->update(
 				"articlescores_sum",
 				array("score" => $sc/$wSum,"stars" => $stars,"usersCount" => $rnumber),
 				array("page_id" => $rev_page)
 			);
-			//$dbrmaster->commit();
 			$ret = $stars;
 		}
 		else {
 			$ret = false;
 		}
 		return $ret;
-	}
-	
-	
-	public static function efFeedbackUs_Setup( &$parser ) {
-		$parser->setFunctionHook( 'feedme', 'FeedbackUsHooks::efFeedbackUs_Render' );
-		return true;
-	}
-
-	public static function efFeedbackUs_Render( &$parser, $width=300, $height=400 ) {
-		$output = "<div id='FeedbackUsFormMagic' style='width:".$width."px;display:none;'>";
-		$output .= "<textarea id='FeedbackUsCommentMagic' style='width:".$width."px;height:".$height."px' placeholder='";
-		$output .= wfMessage( 'feedbackus-message-label-magic' )->plain() . "'></textarea>";
-		$output .= "<input type='text' id='FeedbackUsEmailMagic' placeholder='";
-		$output .= wfMessage( 'feedbackus-email-label' )->plain() . "'/>";
-		$output .= "<button class='FeedbackUsSendButtonMagic'>" . wfMessage( 'feedbackus-send-button' )->plain() . "</button>";
-		/*
-		$output .= "<button id='FeedbackUsSendButtonMagic' class='mw-ui-button mw-ui-progressive'>";
-		$output .= wfMessage( 'feedbackus-send-button' )->plain() . "</button>";
-		*/
-		$output .= "</div>";
-		return $parser->insertStripItem( $output, $parser->mStripState );
 	}
 
 	# create or upgrade new tables
