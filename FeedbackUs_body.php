@@ -387,6 +387,15 @@ class FeedbackUs extends SpecialPage {
 				else {
 					$output .= "<a class='solvedButton' href='$wikiurl/w/Special:FeedbackUs/?feedback_id=" . $row->id . "&pagerid=$pagerID&filter=$filter&solved=1&action=solvefeedback&page_id=" . $row->page_id . "'>" . $this->msg( 'feedbackus-specialpage-mark-as-solved' )->text() . "</a>";
 				}
+				$output .= "<td>$comm</td>";
+				$output .= "<td>" . $row->email . ($config->get("sendToOtrs") ? ' (OTRS)' : '') ."</td>";
+				$ts = substr( $row->timestamp, 0, 10 );
+				if( $ts == '0000-00-00' ) $ts = '';
+				$output .= "<td>$ts</td>";
+				$hascontent = true;
+				$output .= "<td><a href='".WIKIURL."index.php?title=Special:FeedbackUs&repaired=1&feedback_id=".$row->id."&fuPageNumber=$page'>";
+				$output .= $this->msg( 'feedbackus-specialpage-repaired' )->text() . "</a></td>";
+				$output .= "</tr>";
 				$output .= "</td>\n";
 				$output .= "</tr>\n";
 			}
