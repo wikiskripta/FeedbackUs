@@ -4,7 +4,7 @@ Mediawiki extension.
 
 ## Description
 
-* Version 2.1
+* Version 2.2.0
 * Extension gives feedback regarding the articles
 * User can send messages to wiki sysops.
 * User can see and change article's rating.
@@ -27,7 +27,7 @@ Mediawiki extension.
 
 ## Installation
 
-* Make sure you have MediaWiki 1.36+ installed.
+* Make sure you have MediaWiki 1.45+ installed.
 * "Medik" skin selected.
 * Download and place the extension to your /extensions/ folder.
 * Add the following code to your LocalSettings.php:
@@ -72,6 +72,10 @@ This extension is available in English and Czech language. For other languages, 
 
 * "The constant DB_SLAVE/MASTER deprecated in 1.28. Use DB_REPLICA/PRIMARY instead.
 
+### 2.2.0
+
+* Optimized for 1.45
+
 #### FeedbackUs special page
 
 * User can mark an item as "solved".
@@ -85,4 +89,4 @@ This extension is available in English and Czech language. For other languages, 
 ## Authors and license
 
 * [Josef Martiňák](https://www.wikiskripta.eu/w/User:Josmart), [Petr Kajzar](https://www.wikiskripta.eu/w/User:Slepi)
-* MIT License, Copyright (c) 2023 First Faculty of Medicine, Charles University
+* MIT License, Copyright (c) 2026 First Faculty of Medicine, Charles University

@@ -1,139 +1,130 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Title\Title;
+
 /**
- * SpecialPage for FeedbackUs extenion
- * Called with REQUEST parameters page_id and comment,
- * adds feedback to database
- * Otherwise displays the list of commented articles
- * @ingroup Extensions
- * @author Josef Martiňák
+ * Special page for article scores.
  */
- 
- 
 class ArticleScores extends SpecialPage {
-	function __construct() {
-		parent::__construct( 'ArticleScores' );
-	}
+    public function __construct() {
+        parent::__construct( 'ArticleScores' );
+    }
 
-	function execute($param) {
+    public function execute( $param ) {
+        $this->setHeaders();
 
-		global $wgServer;
-		$this->setHeaders();
-		$out = $this->getOutput();
-		$config = $this->getConfig();
+        $request = $this->getRequest();
+        $out = $this->getOutput();
+        $config = MediaWikiServices::getInstance()->getMainConfig();
+        $dbr = MediaWikiServices::getInstance()->getConnectionProvider()->getReplicaDatabase();
 
-		$conn = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $conn->getConnectionRef(DB_REPLICA);
-		//$dbr = wfGetDB( DB_REPLICA );
+        $defaultItems = (int)$config->get( 'FeedbackUsArticleScoresDefaultItemsCount' );
+        $defaultFrom = (int)$config->get( 'FeedbackUsArticleScoresDefaultReviewersCountFrom' );
+        $defaultTo = (int)$config->get( 'FeedbackUsArticleScoresDefaultReviewersCountTo' );
 
-		$url = $wgServer . '/w/Special:ArticleScores';
-		$info = str_replace( '#ITEMS', $config->get("articleScoresDefaultItemsCount"), $this->msg( 'articlescores-sp-info' )->text() );
-		$out->mBodytext .= "<p>$info</p>";
+        $filterRating = max( 1, min( 5, $request->getInt( 'filterRating', 5 ) ) );
+        $filterReviewersFrom = max( 1, $request->getInt( 'filterReviewersFROM', $defaultFrom ) );
+        $filterReviewersTo = max( 0, $request->getInt( 'filterReviewersTO', $defaultTo ) );
+        $filterItemsNo = max( 0, $request->getInt( 'filterItemsNo', $defaultItems ) );
 
-		/* Controls */
-		$output = "<form id='ascoresMenu' class='inline-form row' method='post' action=''>\n";
+        $info = str_replace( '#ITEMS', (string)$defaultItems, $this->msg( 'articlescores-sp-info' )->text() );
+        $out->addHTML( '<p>' . htmlspecialchars( $info, ENT_QUOTES ) . '</p>' );
 
-		// rating
-		$output .= "<div class='col'>\n";
-    	$output .= "<label for='filterRating'>" . $this->msg( 'articlescores-rating' )->text() . "</label>\n";
-		$output .= "<select name='filterRating' class='form-control col'>\n";
-		if(isset($_POST["filterRating"])) $filterRating = $_POST["filterRating"]; else $filterRating = 5;
-		for($i=1;$i<=5;$i++) {
-			$output .= "<option value='$i' ";
-			if($filterRating == $i) $output .= "selected";
-			$output .= ">$i</option>\n";
-		}
-		$output .= "</select>\n";
-		$output .= "</div>\n";
+        $output = "<style>
+#ascoresMenu{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:1rem;max-width:100%;}
+#ascoresMenu .ascores-field{display:flex;flex-direction:column;min-width:140px;max-width:100%;}
+#ascoresMenu label{margin-bottom:0.25rem;}
+#ascoresMenu select{max-width:100%;}
+.ascores-table-wrap{max-width:100%;overflow-x:auto;}
+.ascores-table{width:100%;table-layout:fixed;}
+.ascores-table td,.ascores-table th{overflow-wrap:anywhere;word-break:break-word;}
+.ascores-table td:first-child,.ascores-table th:first-child{width:60%;}
+</style>\n";
+        $output .= "<form id='ascoresMenu' method='get' action=''>\n";
+        $output .= $this->buildSelect( 'filterRating', 'articlescores-rating', range( 1, 5 ), $filterRating );
+        $output .= $this->buildSelect( 'filterReviewersFROM', 'articlescores-ratingsNo-from', range( 1, 100 ), $filterReviewersFrom );
 
-		// number of reviewers FROM
-		$output .= "<div class='col'>\n";
-    	$output .= "<label for='filterReviewersFROM'>" . $this->msg( 'articlescores-ratingsNo-from' )->text() . "</label>\n";
-		$output .= "<select name='filterReviewersFROM' class='form-control col'>\n";
-		if(isset($_POST["filterReviewersFROM"])) $filterReviewersFROM = $_POST["filterReviewersFROM"];
-		else $filterReviewersFROM = $config->get("articleScoresDefaultReviewersCountFROM");
-		for($i=1;$i<=100;$i++) {
-			$output .= "<option value='$i' ";
-			if($filterReviewersFROM == $i) $output .= "selected";
-			$output .= ">$i</option>\n";
-		}
-		$output .= "</select>\n";
-		$output .= "</div>\n";
+        $reviewersToOptions = [ 0 => $this->msg( 'articlescores-unlimited' )->text() ];
+        for ( $i = 1; $i <= 100; $i++ ) {
+            $reviewersToOptions[$i] = (string)$i;
+        }
+        $output .= $this->buildSelect( 'filterReviewersTO', 'articlescores-ratingsNo-to', $reviewersToOptions, $filterReviewersTo );
 
-		// number of reviewers TO
-		$output .= "<div class='col'>\n";
-    	$output .= "<label for='filterReviewersTO'>" . $this->msg( 'articlescores-ratingsNo-to' )->text() . "</label>\n";
-		$output .= "<select name='filterReviewersTO' class='form-control col'>\n";
-		if(isset($_POST["filterReviewersTO"])) $filterReviewersTO = $_POST["filterReviewersTO"];
-		else $filterReviewersTO = $config->get("articleScoresDefaultReviewersCountTO");
-		$output .= "<option value='0' ";
-		if($filterReviewersTO == 0) $output .= "selected";
-		$output .= ">" . $this->msg( 'articlescores-unlimited' )->text() . "</option>\n";
-		for($i=1;$i<=100;$i++) {
-			$output .= "<option value='$i' ";
-			if($filterReviewersTO == $i) $output .= "selected";
-			$output .= ">$i</option>\n";
-		}
-		$output .= "</select>\n";
-		$output .= "</div>\n";
+        $itemsOptions = [ 0 => $this->msg( 'articlescores-unlimited' )->text() ];
+        for ( $i = 50; $i <= 2000; $i += 50 ) {
+            $itemsOptions[$i] = (string)$i;
+        }
+        $output .= $this->buildSelect( 'filterItemsNo', 'articlescores-itemsNo', $itemsOptions, $filterItemsNo );
+        $output .= "<div class='ascores-field'><button type='submit' class='btn btn-primary'>" .
+            htmlspecialchars( $this->msg( 'feedbackus-send-button' )->text(), ENT_QUOTES ) .
+            "</button></div>\n";
+        $output .= "</form>\n";
 
-		// number of items displayed
-		$output .= "<div class='col'>\n";
-    	$output .= "<label for='filterItemsNo'>" . $this->msg( 'articlescores-itemsNo' )->text() . "</label>\n";
-		$output .= "<select name='filterItemsNo' class='form-control col'>\n";
-		if(isset($_POST["filterItemsNo"])) $filterItemsNo = $_POST["filterItemsNo"];
-		else $filterItemsNo = $config->get("articleScoresDefaultItemsCount");
-		$output .= "<option value='0' ";
-		if($filterItemsNo == 0) $output .= "selected";
-		$output .= ">" . $this->msg( 'articlescores-unlimited' )->text() . "</option>\n";
-		for($i=50;$i<=2000;$i+=50) {
-			$output .= "<option value='$i' ";
-			if($filterItemsNo == $i) $output .= "selected";
-			$output .= ">$i</option>\n";
-		}
-		$output .= "</select>\n";
-		$output .= "</div>\n";
-		// submit
-		$output .= "<button type='submit' class='btn btn-primary form-control mt-3'>" . $this->msg( 'feedbackus-send-button' )->text() . "</button>\n";
-		$output .= "</form>\n";
+        $conditions = [
+            $dbr->expr( 'score', '>=', $filterRating - 0.5 ),
+            $dbr->expr( 'score', '<=', $filterRating + 0.49 ),
+            $dbr->expr( 'usersCount', '>=', $filterReviewersFrom ),
+        ];
+        if ( $filterReviewersTo > 0 ) {
+            $conditions[] = $dbr->expr( 'usersCount', '<=', $filterReviewersTo );
+        }
 
-		// SHOW LIST
-		if($filterReviewersTO) $toCondition =  "and usersCount<=$filterReviewersTO"; else $toCondition = '';
-		if($filterItemsNo) $orderLimitCondition =  array( 'ORDER BY' => 'score','LIMIT' => $filterItemsNo );
-		else $orderLimitCondition =  array( 'ORDER BY' => 'score' );
-		$res = $dbr->select(
-			'articlescores_sum',
-			array( 'page_id', 'score', 'usersCount' ),
-			"score BETWEEN " . ($filterRating-0.5) ." and " . ($filterRating+0.49) . " and usersCount>=$filterReviewersFROM $toCondition",
-			'__METHOD__',
-			$orderLimitCondition
-		);
+        $query = $dbr->newSelectQueryBuilder()
+            ->select( [ 'page_id', 'score', 'usersCount' ] )
+            ->from( 'articlescores_sum' )
+            ->where( $conditions )
+            ->orderBy( 'score', 'DESC' )
+            ->caller( __METHOD__ );
 
-		$output .= "<table class='table table-striped mt-4'>\n<thead>\n<tr>\n";
-		$output .= "<th>" . $this->msg( 'articlescores-page' )->text() . "</th>\n";
-		$output .= "<th>" . $this->msg( 'articlescores-score' )->text() . "</th>\n";
-		$output .= "<th>" . $this->msg( 'articlescores-ratingsNo' )->text() . "</th>\n";
-		$output .= "</tr>\n</thead>\n";
+        if ( $filterItemsNo > 0 ) {
+            $query->limit( $filterItemsNo );
+        }
 
-		$output .= "<tbody>\n";
-		foreach ( $res as $row ) {
-			$res2 = $dbr->selectRow(
-				'page',
-				array( 'page_namespace', 'page_title' ),
-				array( 'page_id' => $row->page_id )
-			);
-			if( $res2 && in_array($res2->page_namespace, $config->get("namespaces")) ) {
-				$article = Article::newFromId( $row->page_id );
-				$title = $article->getTitle();
-				$output .= "<tr>\n";
-				$output .= "<td><a href='$wgServer/w/" . $title->getPrefixedDBkey() . "'>" . $title->getPrefixedDBkey() . "</a></td>\n";
-				$output .= "<td>" . preg_replace("/\./",",", round( $row->score, 2 )) . "</td>\n";
-				$output .= "<td>" . $row->usersCount . "</td>\n";
-				$output .= "</tr>\n";
-			}
-		}
-		$output .= "</tbody>\n<table>\n";
-		$out->addHTML( $output );
-	}
-	
+        $rows = $query->fetchResultSet();
+
+        $output .= "<div class='ascores-table-wrap'><table class='table table-striped mt-4 ascores-table'><thead><tr>";
+        $output .= '<th>' . htmlspecialchars( $this->msg( 'articlescores-page' )->text(), ENT_QUOTES ) . '</th>';
+        $output .= '<th>' . htmlspecialchars( $this->msg( 'articlescores-score' )->text(), ENT_QUOTES ) . '</th>';
+        $output .= '<th>' . htmlspecialchars( $this->msg( 'articlescores-ratingsNo' )->text(), ENT_QUOTES ) . '</th>';
+        $output .= "</tr></thead><tbody>\n";
+
+        $allowedNamespaces = $config->get( 'FeedbackUsNamespaces' );
+        foreach ( $rows as $row ) {
+            $title = Title::newFromID( (int)$row->page_id );
+            if ( !$title || !in_array( $title->getNamespace(), $allowedNamespaces, true ) ) {
+                continue;
+            }
+
+            $output .= '<tr>';
+            $output .= '<td><a href="' . htmlspecialchars( $title->getLocalURL(), ENT_QUOTES ) . '">' . htmlspecialchars( $title->getPrefixedText(), ENT_QUOTES ) . '</a></td>';
+            $output .= '<td>' . htmlspecialchars( str_replace( '.', ',', (string)round( (float)$row->score, 2 ) ), ENT_QUOTES ) . '</td>';
+            $output .= '<td>' . (int)$row->usersCount . '</td>';
+            $output .= '</tr>';
+        }
+
+        $output .= '</tbody></table></div>';
+        $out->addHTML( $output );
+    }
+
+    private function buildSelect( string $name, string $labelMessage, array $options, int $selected ): string {
+        $html = "<div class='ascores-field'>\n";
+        $html .= '<label for="' . htmlspecialchars( $name, ENT_QUOTES ) . '">' . htmlspecialchars( $this->msg( $labelMessage )->text(), ENT_QUOTES ) . '</label>';
+        $html .= '<select name="' . htmlspecialchars( $name, ENT_QUOTES ) . '" class="form-select">';
+
+        foreach ( $options as $value => $label ) {
+            if ( is_int( $value ) && is_int( $label ) ) {
+                $value = $label;
+            }
+            $html .= '<option value="' . htmlspecialchars( (string)$value, ENT_QUOTES ) . '"';
+            if ( (int)$value === $selected ) {
+                $html .= ' selected';
+            }
+            $html .= '>' . htmlspecialchars( (string)$label, ENT_QUOTES ) . '</option>';
+        }
+
+        $html .= '</select></div>';
+        return $html;
+    }
 }

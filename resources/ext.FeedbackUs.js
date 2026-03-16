@@ -1,122 +1,117 @@
-/**
- * Javascript for extension
- * @ingroup Extensions
- * @author Josef Martiňák
- */
-
 ( function ( mw, $ ) {
+	'use strict';
 
-	if( mw.config.get("wgIsArticle") == false || window.location.href.indexOf("veaction=edit") !== -1  ) return true;
+	if ( !mw.config.get( 'wgIsArticle' ) || mw.config.get( 'wgAction' ) === 'edit' ) {
+		return;
+	}
 
-	var wikipath = window.location.origin;
+	var script = mw.util.wikiScript( 'index' );
+	var scriptPath = mw.config.get( 'wgScriptPath' ) || '';
+	var imageBase = scriptPath + '/extensions/FeedbackUs/resources/img';
+	var $heading = $( '#firstHeading' );
+	var $modal = $( '#fbuModal' );
 
-	// Add feedback icon 
-	$("#firstHeading").append('<div id="ca-feedback" data-bs-toggle="modal" data-bs-target="#fbuModal" class="noprint mb-2"><img src="/extensions/FeedbackUs/resources/img/feedback.png" id="feedbackicon" alt="Feedback"></div>');
+	if ( !$heading.length || !$modal.length || $( '#ca-feedback' ).length ) {
+		return;
+	}
 
-	$('#fbuModal').on('hide.bs.modal', function (e) {
-		// clear form
-		$('#FeedbackUsEmail').val('');
-		$('#FeedbackUsComment').val('');
-		$('#fbSuccess').removeClass("d-none").addClass("d-none");
-		$('#fbError').removeClass("d-none").addClass("d-none");
-		$('#asSuccess').removeClass("d-none").addClass("d-none");
-		$('#asError').removeClass("d-none").addClass("d-none");
-	})
+	$heading.append(
+		'<div id="ca-feedback" data-bs-toggle="modal" data-bs-target="#fbuModal" class="noprint mb-2">' +
+			'<img src="' + imageBase + '/feedback.png" id="feedbackicon" alt="Feedback">' +
+		'</div>'
+	);
 
-	// Send modal form
-	$('#fbuModal form').submit(function( event ) {
+	function hideAlerts() {
+		$( '#fbSuccess, #fbError, #asSuccess, #asError' ).addClass( 'd-none' ).empty();
+		$( '#fbSuccess' ).text( mw.message( 'feedbackus-thanks' ).text() );
+		$( '#asSuccess' ).text( mw.message( 'articlescores-success' ).text() );
+		$( '#asError' ).text( mw.message( 'articlescores-one-per-day' ).text() );
+	}
+
+	function displayRating( rating ) {
+		$( '.ratingBar span' ).each( function () {
+			var color = $( this ).data( 'rating' ) <= rating ? 'orange' : 'white';
+			$( this ).find( 'img' ).attr( 'src', imageBase + '/star_' + color + '.png' );
+		} );
+	}
+
+	$modal.on( 'hide.bs.modal', function () {
+		$( '#FeedbackUsEmail' ).val( '' );
+		$( '#FeedbackUsComment' ).val( '' );
+		hideAlerts();
+		displayRating( Number( $modal.data( 'rating' ) ) || 0 );
+	} );
+
+	$modal.find( 'form' ).on( 'submit', function ( event ) {
 		event.preventDefault();
+		hideAlerts();
 
-		var page_id = $( '#fbuModal' ).data('pageid');
-		var rev_id = $( '#fbuModal' ).data('revid');
-				
-		// send feedback
-		var data = {'page_id': page_id, 'comment': $( '#FeedbackUsComment' ).val(), 'email': $( '#FeedbackUsEmail' ).val(), 'rev_id': rev_id, 'action': 'insertcomment'};
-		$.ajax({
+		$.ajax( {
 			type: 'POST',
-			url: wikipath + '/index.php?title=Special:FeedbackUs',
-			data: data,
-			dataType: 'text',
-			contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-			success: function( server_response ) {
-				if(server_response == 'ok') {
-					$('#fbSuccess').removeClass("d-none");
-					// hide modal
-					setTimeout(function() {	
-						$('#fbuModal').modal('hide');
-					}, 2000 );
-				}
-				else {
-					$('#fbError').removeClass("d-none");
-					$('#fbError').html( server_response );
-					// hide alert
-					setTimeout(function() {	
-						$('#fbError').addClass("d-none");
-					}, 2000 );
-				}
+			url: script + '?title=Special:FeedbackUs',
+			data: {
+				page_id: $modal.data( 'pageid' ),
+				rev_id: $modal.data( 'revid' ),
+				comment: $( '#FeedbackUsComment' ).val(),
+				email: $( '#FeedbackUsEmail' ).val(),
+				action: 'insertcomment'
+			},
+			dataType: 'text'
+		} ).done( function ( response ) {
+			if ( response === 'ok' ) {
+				$( '#fbSuccess' ).removeClass( 'd-none' );
+				setTimeout( function () {
+					$modal.modal( 'hide' );
+				}, 2000 );
+				return;
 			}
-		});
-	});
 
+			$( '#fbError' ).removeClass( 'd-none' ).text( response );
+		} ).fail( function () {
+			$( '#fbError' ).removeClass( 'd-none' ).text( 'Error: request failed' );
+		} );
+	} );
 
-	// Handle review bar
-	$( ".asStar" ).click(function() {
-		var rating = $(this).data("rating");
-		var data = {"page_id": $("#fbuModal").data("pageid"), "rev_id": $("#fbuModal").data("revid"), "score": rating, "action": "insertrating"};
-		$.ajax({
+	$( '.asStar' ).on( 'click', function () {
+		hideAlerts();
+		var rating = Number( $( this ).data( 'rating' ) );
+
+		$.ajax( {
 			type: 'POST',
-			url: wikipath + '/index.php?title=Special:FeedbackUs',
-			data: data,
-			dataType: 'text',
-			contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-			success: function( server_response ) {
-				if( server_response.match(/^[0-9]+$/) != null ) {
-					displayRating(server_response);
-					$('#asSuccess').removeClass("d-none");
-					// hide alert
-					setTimeout(function() {	
-						$('#asSuccess').addClass("d-none");
-					}, 2000 );
-				}
-				else if(server_response == 'articlescores-dayips-not-today') {
-					$('#asError').removeClass("d-none");
-					// hide alert
-					setTimeout(function() {	
-						$('#asError').addClass("d-none");
-					}, 2000 );
-				}
-				else {
-					$('#fbError').removeClass("d-none");
-					$('#fbError').html( server_response );
-					// hide alert
-					setTimeout(function() {	
-						$('#fbError').addClass("d-none");
-					}, 2000 );
-				}
+			url: script + '?title=Special:FeedbackUs',
+			data: {
+				page_id: $modal.data( 'pageid' ),
+				rev_id: $modal.data( 'revid' ),
+				score: rating,
+				action: 'insertrating'
+			},
+			dataType: 'text'
+		} ).done( function ( response ) {
+			if ( /^\d+$/.test( response ) ) {
+				$modal.data( 'rating', Number( response ) );
+				displayRating( Number( response ) );
+				$( '#asSuccess' ).removeClass( 'd-none' );
+				return;
 			}
-		});
-	});
 
-	$( ".asStar" ).mouseover(function() {
-		var rating = $(this).data("rating");
-		displayRating(rating);
-	});
-	$( ".ratingBar" ).mouseout(function() {
-		var rating = $( '#fbuModal' ).data('rating');
-		displayRating(rating);
-	});
+			if ( response === 'articlescores-dayips-not-today' ) {
+				$( '#asError' ).removeClass( 'd-none' );
+				return;
+			}
 
-}( mediaWiki, jQuery ) );
+			$( '#fbError' ).removeClass( 'd-none' ).text( response );
+		} ).fail( function () {
+			$( '#fbError' ).removeClass( 'd-none' ).text( 'Error: request failed' );
+		} );
+	} );
 
+	$( '.asStar' ).on( 'mouseover', function () {
+		displayRating( Number( $( this ).data( 'rating' ) ) || 0 );
+	} );
 
-/**
- * Display correct colors of stars' rating
- * @param {int} rating: chosen rating
- */
-function displayRating(rating) {
-	$(".ratingBar span").each(function() {
-		var color = "white";
-		if( $(this).data("rating") <= rating ) color = "orange";
-		$(this).find("img").attr("src", window.location.origin + "/extensions/FeedbackUs/resources/img/star_" + color + ".png");
-	});
-}
+	$( '.ratingBar' ).on( 'mouseout', function () {
+		displayRating( Number( $modal.data( 'rating' ) ) || 0 );
+	} );
+
+	hideAlerts();
+} )( mediaWiki, jQuery );
