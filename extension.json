@@ -69,7 +69,7 @@
       "description": "Items per page on Special:FeedbackUs."
     },
     "FeedbackUsOtrs": {
-      "value": true,
+      "value": false,
       "description": "If true, comments are sent to the configured email address."
     },
     "FeedbackUsOtrsAddress": {

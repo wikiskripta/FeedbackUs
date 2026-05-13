@@ -27,7 +27,7 @@ class FeedbackUs extends SpecialPage {
 
         $pageId = $request->getInt( 'page_id' );
         $action = $request->getVal( 'action', '' );
-        $script = rtrim( $config->get( 'ScriptPath' ), '/' );
+        $script = rtrim( $config->get( 'Server' ), '/' );
 
         if ( $pageId ) {
             $pageRow = $dbr->newSelectQueryBuilder()
@@ -83,7 +83,7 @@ class FeedbackUs extends SpecialPage {
                     $body = $this->msg( 'feedbackus-message-label' )->plain() . PHP_EOL . PHP_EOL;
                     $body .= $this->msg( 'feedbackus-message-body' )->plain() . PHP_EOL . PHP_EOL;
                     $body .= $script . '/index.php?curid=' . $pageId . PHP_EOL;
-                    $body .= $script . '/index.php?title=' . SpecialPage::getTitleFor( 'FeedbackUs' )->getPrefixedText();
+                    $body .= $script . '/index.php?title=' . SpecialPage::getTitleFor( 'FeedbackUs' )->getPrefixedDBkey();
                     $body .= '&page_id=' . $pageId . PHP_EOL . PHP_EOL . $comment;
 
                     if ( !$this->sendMail( $config->get( 'FeedbackUsOtrsAddress' ), $from, $subject, $body ) ) {
